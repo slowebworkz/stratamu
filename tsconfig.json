@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "moduleResolution": "node"
+  },
+  "files": [],
+  "references": [
+    { "path": "./packages/core-engine" },
+    { "path": "./packages/constants" }
+  ]
+}

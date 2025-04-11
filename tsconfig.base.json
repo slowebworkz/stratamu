@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.paths.json",
+  "compilerOptions": {
+    "lib": ["ESNext"],                        // Add ESNext library
+    "target": "ESNext",                       // Modern JavaScript for Bun compatibility
+    "module": "ESNext",                       // Use ES modules
+    "moduleResolution": "bundler",            // Resolve modules like a bundler
+    "moduleDetection": "force",               // Force module detection
+    "allowJs": true,                          // Allow JavaScript files to be compiled
+    "strict": true,                           // Enable strict type-checking options
+    "esModuleInterop": true,                  // Allow default imports from modules with no default export
+    "skipLibCheck": true,                     // Skip type checking of declaration files
+    "forceConsistentCasingInFileNames": true, // Ensure consistent casing in file names
+    "verbatimModuleSyntax": true,            // Preserve module syntax in emitted code
+    "noUncheckedIndexedAccess": true,       // Report errors on indexed access to arrays and tuples
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "**/dist"]
+}

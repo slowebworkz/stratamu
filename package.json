@@ -1,0 +1,51 @@
+{
+  "name": "stratamu",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "author": "Karsten Huehn",
+  "license": "MIT",
+  "workspaces": [
+    "packages/*"
+  ],
+  "exports": {
+    "./core-engine": "./packages/core-engine/dist/index.js"
+  },
+  "scripts": {
+    "create": "bun run ./index.ts ",
+    "build": "bun tsc && bun vite build"
+  },
+  "dependencies": {
+    "@iarna/toml": "^2.2.5",
+    "@stratamu/constants": "*",
+    "fast-copy": "^3.0.2",
+    "ip-num": "^1.5.1"
+  },
+  "devDependencies": {
+    "@dotenvx/dotenvx": "^1.39.1",
+    "@effective/prettier": "^0.2.1",
+    "@eslint/js": "^9.23.0",
+    "@types/bun": "latest",
+    "@types/node": "latest",
+    "error-lib": "^2.0.2",
+    "eslint": "^9.24.0",
+    "eslint-plugin-toml": "^0.12.0",
+    "load-json-file": "latest",
+    "prettier": "^3.5.3",
+    "prettier-eslint": "^16.3.0",
+    "ts-node-utils": "git+https://github.com/slowebworkz/ts-node-utils.git#e451b2e3004cd6bce1c5a2acc7df0ed613a66cd9",
+    "tscpaths": "^0.0.9",
+    "types-library": "git+https://github.com/slowebworkz/types-library.git#09b36a64f78c46d92a220422df2525fead69671b",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.29.0",
+    "vite": "^6.2.4",
+    "vite-plugin-resolve": "^2.5.2",
+    "write-json-file": "latest"
+  },
+  "engines": {
+    "bun": ">=0.5.0"
+  }
+}

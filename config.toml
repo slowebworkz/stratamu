@@ -1,0 +1,60 @@
+# General Server settings
+[server]
+name = "SampleMUD"
+hostname = "0.0.0.0"
+port = 4000
+max_connections = 100
+idle_timeout = 600  # In seconds
+log_level = "INFO"
+log_file = "logs/server.log"
+
+# General Database settings
+[database]
+input_db = "data/indb.db"
+output_db = "data/outdb.db"
+crash_db = "data/PANIC.db"
+backup_interval = 3600  # Backup every hour
+
+# General Security settings
+[security]
+admin_password = "supersecret"
+allow_guests = true
+banlist_file = "config/banlist.txt"
+
+# General Gameplay settings
+[gameplay]
+start_room = 1001
+death_room = 2001
+max_level = 100
+exp_rate = 1.5
+allow_pvp = true
+safe_zones = [1001, 1002, 1003]
+
+# Common Feature toggles (used by both MUD and MUSH)
+[features]
+enable_magic = true
+enable_trading = true
+enable_building = false
+enable_mailing = true
+
+# MUD-specific Economy settings
+[economy]
+starting_gold = 100
+trade_tax = 5.0  # Percent
+
+# MUSH-specific Roleplaying settings
+[roleplay]
+emote_style = "classic"
+allow_custom_channels = true
+
+# General World settings
+[world]
+day_length = 3600  # Length of an in-game day in seconds
+weather_enabled = true
+event_frequency = "weekly"
+
+# Optional API settings (for games supporting web integration)
+[api]
+enabled = false
+port = 8080
+key = "your-api-key-here"

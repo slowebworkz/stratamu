@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "skipLibCheck": true,
+    "emitDeclarationOnly": false,
+    "downlevelIteration": true,
+    "importHelpers": true,
+    "noEmit": true,                          // Do not emit output files
+    "allowImportingTsExtensions": true,      // Allow importing TypeScript files with .ts extension
+    "noFallthroughCasesInSwitch": true,      // Report errors for fallthrough cases in switch statements
+    "noUnusedLocals": true,                  // Report errors on unused locals
+    "noUnusedParameters": true,              // Report errors on unused parameters
+    "noPropertyAccessFromIndexSignature": true // Report errors on property access from index signature
+  }
+}

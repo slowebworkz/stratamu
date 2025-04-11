@@ -1,0 +1,31 @@
+# Bun Configuration for the Game Core Project
+
+[build]
+entry = "./src/index.ts"    # Entry point for the game core engine
+outDir = "./dist"           # Directory to output the compiled code
+minify = true               # Minify the output for production builds
+sourcemap = true            # Enable sourcemaps for easier debugging
+target = "esnext"           # Set the JavaScript target version (ESNext)
+external = ["game-utils"]   # External dependencies to exclude from bundling
+
+[dev]
+port = 3000                 # Port for development server (if needed)
+
+[watch]
+enabled = true              # Enable watching for file changes during development
+
+# Bun-specific configurations
+
+# scripts to run before `bun run`-ing a file or script
+# register plugins by adding them to this list
+# preload = ["./preload.ts"]
+
+# Enable smol mode to reduce memory usage at the cost of performance
+smol = true
+
+# Test runner configurations
+[test]
+root = "./__tests__"
+
+# Set coverage threshold to 90%
+coverageThreshold = 0.9
