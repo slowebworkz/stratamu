@@ -36,7 +36,7 @@
     "load-json-file": "latest",
     "prettier": "^3.5.3",
     "prettier-eslint": "^16.3.0",
-    "ts-node-utils": "git+https://github.com/slowebworkz/ts-node-utils.git#e451b2e3004cd6bce1c5a2acc7df0ed613a66cd9",
+    "ts-node-utils": "git+https://github.com/slowebworkz/ts-node-utils.git#f9fc19cec032b12ad85ec8ab0d2b7acaa9177095",
     "tscpaths": "^0.0.9",
     "types-library": "git+https://github.com/slowebworkz/types-library.git#09b36a64f78c46d92a220422df2525fead69671b",
     "typescript": "^5.8.2",
