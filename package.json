@@ -1,6 +1,6 @@
 {
   "name": "stratamu",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "private": true,
   "type": "module",
   "main": "./dist/index.js",
@@ -16,7 +16,9 @@
   },
   "scripts": {
     "create": "bun run ./index.ts ",
-    "build": "bun tsc && bun vite build"
+    "build": "bun tsc && bun vite build",
+    "dev": "bun run --filter core-engine dev",
+    "build:packages": "bun run --filter ./packages/* build"
   },
   "dependencies": {
     "@iarna/toml": "^2.2.5",
