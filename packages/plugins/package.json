@@ -1,5 +1,5 @@
 {
-  "name": "@stratamu/core-engine",
+  "name": "@stratamu/plugins",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -14,16 +14,9 @@
     "build": "bun tsc && bun vite build",
     "clean": "rm -rf dist",
     "dev": "bun vite",
-    "test": "bun test",
-    "dev:alt": "bun --watch src/index.ts",
-    "build:alt": "tsc -p tsconfig.json"
+    "test": "bun test"
   },
-  "keywords": [
-    "game-core",
-    "engine",
-    "state-management",
-    "game-logic"
-  ],
+  "keywords": ["plugins", "database", "integration", "game-engine"],
   "engines": {
     "bun": ">=0.5.0"
   }
