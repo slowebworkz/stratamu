@@ -3,7 +3,8 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
-    "lib": ["es2015", "esnext", "dom"]
+    "lib": ["es2015", "esnext", "dom"],
+    "types": ["node"]
   },
   "include": ["src"]
 }
