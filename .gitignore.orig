@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d1bb881
 ### AL ###
 #Template for AL projects for Dynamics 365 Business Central
 #launch.json folder
@@ -20,6 +24,8 @@ rad.json
 *.flf
 #Test results file
 TestResults.xml
+<<<<<<< HEAD
+=======
 
 node_modules
 **/dist
@@ -29,3 +35,6 @@ results
 .turbo/
 .turbo/cookies/
 .turbo/daemon/
+>>>>>>> 88b31ad (chore: squash all history)
+=======
+>>>>>>> d1bb881

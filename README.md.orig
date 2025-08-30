@@ -1,10 +1,8 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
-
 # stratamu
-
-# game engine
-
+game engine
+=======
 <!--suppress HtmlDeprecatedAttribute -->
 <div align="center">
 
@@ -275,11 +273,8 @@ module.exports = (config) => {
 ```
 
 See the full example [here](https://github.com/NiGhTTraX/ts-monorepo/tree/4222f84e1879a85ffd352fc33c4a8c5167225184/apps/cra). For tests, see the [jest example](#jest).
-
-> > > > > > > # 88b31ad (chore: squash all history)
-
+>>>>>>> 88b31ad (chore: squash all history)
+=======
 # stratamu
-
 game engine
-
-> > > > > > > d1bb881
+>>>>>>> d1bb881

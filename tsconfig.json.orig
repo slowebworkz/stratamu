@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.build.json",
+<<<<<<< HEAD
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@stratamu/core-engine": ["packages/core-engine/src"]
+    },
+    "noEmit": true
+=======
+
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@nighttrax/*": ["packages/*/src"]
+    }
+>>>>>>> d1bb881
+  }
+}
