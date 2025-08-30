@@ -29,5 +29,8 @@
     "typescript-eslint": "~8.39.1"
   },
   "packageManager": "pnpm@10.14.0",
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "telnet-client": "^2.2.6"
+  }
 }
