@@ -114,17 +114,14 @@ Use [babel-plugin-module-resolver](https://www.npmjs.com/package/babel-plugin-mo
 
 ```js
 module.exports = {
-  presets: [
-    ["@babel/preset-env", { targets: { node: "current" } }],
-    "@babel/preset-typescript",
-  ],
+  presets: [['@babel/preset-env', { targets: { node: 'current' } }], '@babel/preset-typescript'],
 
   plugins: [
     [
-      "module-resolver",
+      'module-resolver',
       {
         alias: {
-          "^@nighttrax/(.+)": "../\\1/src",
+          '^@nighttrax/(.+)': '../\\1/src',
         },
       },
     ],
@@ -139,7 +136,7 @@ See the full example [here](apps/jest-babel).
 Use [tsconfig-paths-webpack-plugin](https://www.npmjs.com/package/tsconfig-paths-webpack-plugin) to resolve the path aliases:
 
 ```js
-const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 module.exports = {
   resolve: {
@@ -157,15 +154,15 @@ If you use `Babel` then see [this example](apps/jest-babel) from the [Babel](#ba
 If you use [ts-jest](https://github.com/kulshekhar/ts-jest) then you can use its `pathsToModuleNameMapper` helper:
 
 ```js
-const { pathsToModuleNameMapper } = require("ts-jest");
-const { compilerOptions } = require("../../tsconfig.json");
+const { pathsToModuleNameMapper } = require('ts-jest');
+const { compilerOptions } = require('../../tsconfig.json');
 
 module.exports = {
-  preset: "ts-jest",
+  preset: 'ts-jest',
 
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
     // This has to match the baseUrl defined in tsconfig.json.
-    prefix: "<rootDir>/../../",
+    prefix: '<rootDir>/../../',
   }),
 };
 ```
@@ -177,9 +174,9 @@ See the full example [here](apps/jest-tsjest).
 Use [vite-tsconfig-paths](https://www.npmjs.com/package/vite-tsconfig-paths) in the Vite config:
 
 ```typescript
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import tsconfigPaths from "vite-tsconfig-paths";
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
   plugins: [react(), tsconfigPaths()],
@@ -197,7 +194,7 @@ module.exports = {
   webpack: (config) => {
     // Let Babel compile outside of src/.
     const tsRule = config.module.rules.find(
-      (rule) => rule.test && rule.test.toString().includes("tsx|ts"),
+      (rule) => rule.test && rule.test.toString().includes('tsx|ts'),
     );
     tsRule.include = undefined;
     tsRule.exclude = /node_modules/;
@@ -228,7 +225,7 @@ See the full example [here](apps/nestjs).
 [Extend Storybook's webpack config](https://storybook.js.org/docs/react/builders/webpack#typescript-module-resolution) and apply the [tsconfig-paths-webpack-plugin](https://www.npmjs.com/package/tsconfig-paths-webpack-plugin):
 
 ```js
-const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 module.exports = {
   webpackFinal: async (config) => {
@@ -252,7 +249,7 @@ See the full example [here](apps/storybook).
 Use [craco](https://www.npmjs.com/package/@craco/craco) or [react-app-rewired](https://www.npmjs.com/package/react-app-rewired) to extend CRA's webpack config and apply the [tsconfig-paths-webpack-plugin](https://www.npmjs.com/package/tsconfig-paths-webpack-plugin):
 
 ```js
-const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 module.exports = (config) => {
   // Remove the ModuleScopePlugin which throws when we
@@ -264,9 +261,7 @@ module.exports = (config) => {
 
   // Let Babel compile outside of src/.
   const oneOfRule = config.module.rules.find((rule) => rule.oneOf);
-  const tsRule = oneOfRule.oneOf.find((rule) =>
-    rule.test.toString().includes("ts|tsx"),
-  );
+  const tsRule = oneOfRule.oneOf.find((rule) => rule.test.toString().includes('ts|tsx'));
   tsRule.include = undefined;
   tsRule.exclude = /node_modules/;
 
