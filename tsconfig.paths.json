@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@stratamu/core-engine": ["packages/core-engine/src"],
+      "@stratamu/networking": ["packages/networking/src"]
+    }
+  }
+}

@@ -1,10 +1,6 @@
 {
-  "extends": "./tsconfig.build.json",
+  "extends": "./tsconfig.paths.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@stratamu/core-engine": ["packages/core-engine/src"]
-    },
     "noEmit": true
   }
 }
