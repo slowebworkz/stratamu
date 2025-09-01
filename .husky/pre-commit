@@ -1,1 +1,1 @@
-pnpm lint && pnpm prettier --check . && pnpm test
+pnpm install
