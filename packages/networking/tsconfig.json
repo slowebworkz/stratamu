@@ -2,7 +2,23 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src"
+    "rootDir": "src",
+    "baseUrl": "src",
+    "moduleResolution": "node",
+    "noEmit": false,
+    "declaration": true,
+    "paths": {
+      "@/types": ["types/index"],
+      "@/shared": ["shared/index"],
+      "@/telnet": ["telnet/index"],
+      "@/constants": ["constants/index"],
+      "@/utils": ["utils/index"],
+      "@/types/*": ["types/*"],
+      "@/shared/*": ["shared/*"],
+      "@/telnet/*": ["telnet/*"],
+      "@/constants/*": ["constants/*"],
+      "@/utils/*": ["utils/*"]
+    }
   },
   "include": ["src"]
 }

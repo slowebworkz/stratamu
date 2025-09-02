@@ -1,7 +1,11 @@
-import { NetworkAdapter } from "./networkAdapter";
+import { NetworkAdapter, TelnetConfig } from "@/types";
 import * as net from "node:net";
-import { ClientStateManager } from "./clientStateManager";
-import { IdleTimeoutManager } from "./idleTimeoutManager";
+import { randomUUID } from "node:crypto";
+import { ClientStateManager, IdleTimeoutManager, GroupManager } from "@/shared";
+import { ConnectionManager, TelnetProtocolHandler } from "@/telnet";
+import type { ConnectionLimits } from "@/types";
+
+export { TelnetConfig };
 
 /**
  * TelnetAdapter: Classic fallback networking adapter for MUD/MUSH games.
@@ -10,64 +14,85 @@ import { IdleTimeoutManager } from "./idleTimeoutManager";
  * DikuMUD/TinyMUD/LPMud/AberMUD-style implementation for connection and basic text I/O.
  */
 export class TelnetAdapter implements NetworkAdapter {
-  private clients: Map<string, net.Socket> = new Map();
   private clientStates = new ClientStateManager();
   private idleTimeouts = new IdleTimeoutManager();
+  private connectionManager: ConnectionManager;
+  private groupManager = new GroupManager();
   private handlers: { [event: string]: Array<(clientId: string, data?: any) => void> } = {};
   private server?: net.Server;
-  private groups: Map<string, Set<string>> = new Map();
   private middlewares: Array<(clientId: string, message: any, next: () => void) => void> = [];
+  private config: Required<TelnetConfig> = {
+    port: 4000,
+    idleTimeoutMs: 600000, // 10 minutes
+    maxConnections: 100,
+    maxConnectionsPerIP: 5
+  };
+
+  constructor() {
+    this.connectionManager = new ConnectionManager({
+      maxConnections: this.config.maxConnections,
+      maxConnectionsPerIP: this.config.maxConnectionsPerIP
+    });
+  }
 
   /**
    * Start the Telnet server, listen for connections, and handle basic Telnet negotiation.
-   * Follows classic MUD patterns: listen on port 4000, accept multiple clients, handle text I/O.
+   * Follows classic MUD patterns: listen on configurable port, accept multiple clients, handle text I/O.
    */
-  public async start() {
-    this.server = net.createServer((socket) => {
-      // Destructure remoteAddress and remotePort from socket
-      const { remoteAddress, remotePort } = socket;
-      const clientId = `${remoteAddress}:${remotePort}`;
-      this.clients.set(clientId, socket);
-      this._emit("connect", clientId);
-      this.setIdleTimeout(clientId, 600000); // 10 min default
+  public async start(config?: TelnetConfig) {
+    // Merge user config with defaults
+    this.config = { ...this.config, ...config };
 
-      // Telnet negotiation: ECHO OFF, SUPPRESS GO-AHEAD
-      // IAC DO SUPPRESS GO-AHEAD (255, 253, 3), IAC WILL ECHO (255, 251, 1)
-      socket.write(Buffer.from([255, 253, 3])); // DO SUPPRESS GO-AHEAD
-      socket.write(Buffer.from([255, 251, 1])); // WILL ECHO
+    // Update connection manager with new limits
+    this.connectionManager = new ConnectionManager({
+      maxConnections: this.config.maxConnections,
+      maxConnectionsPerIP: this.config.maxConnectionsPerIP
+    });
+
+    this.server = net.createServer((socket) => {
+      // Generate stable client ID with UUID for session tracking
+      const { remoteAddress, remotePort } = socket;
+      const clientId = `${remoteAddress ?? "unknown"}:${remotePort ?? "0"}:${randomUUID()}`;
+
+      // Rate limiting using ConnectionManager
+      if (!this.connectionManager.canAcceptConnection(this.connectionManager.getActiveConnections(), remoteAddress)) {
+        if (this.connectionManager.getActiveConnections() >= this.config.maxConnections) {
+          socket.end("Server is full. Please try again later.\r\n");
+        } else {
+          socket.end("Too many connections from your IP. Please try again later.\r\n");
+        }
+        return;
+      }
+
+      this.connectionManager.addClient(clientId, socket);
+      this._emit("connect", clientId);
+      this.setIdleTimeout(clientId, this.config.idleTimeoutMs);
+
+      // Telnet negotiation using protocol handler
+      TelnetProtocolHandler.sendInitialNegotiation(socket);
 
       // Handle incoming data
       socket.on("data", (data) => {
-        this.idleTimeouts.set(clientId, 600000, () => {
-          const sock = this.clients.get(clientId);
-          if (sock) {
-            sock.end("Idle timeout.\r\n");
-            this.clients.delete(clientId);
-            this.clientStates.delete(clientId);
+        // Refresh idle timeout on activity (IdleTimeoutManager.set() auto-clears existing timeout)
+        this.idleTimeouts.set(clientId, this.config.idleTimeoutMs, () => {
+          const socket = this.connectionManager.getClient(clientId);
+          if (socket) {
+            socket.end("Idle timeout.\r\n");
+            this._cleanupClient(clientId);
             this._emit("disconnect", clientId);
           }
         });
-        // Destructure length from data (Buffer)
-        const { length } = data;
-        const message = this._parseTelnetData(data);
-        this._handleMessage(clientId, message);
+
+        const message = TelnetProtocolHandler.parseTelnetData(data);
+        if (message.trim().length > 0) {
+          this._handleMessage(clientId, message.trim());
+        }
       });
 
       // Handle client disconnect
       socket.on("close", () => {
-        this.clients.delete(clientId);
-        this.clientStates.delete(clientId);
-        this.idleTimeouts.clear(clientId);
+        this._cleanupClient(clientId);
         console.info(`Client ${clientId} disconnected. Removing from all groups.`);
-        this.groups.forEach((group, groupId) => {
-          group.delete(clientId);
-          if (group.size === 0) {
-            this.groups.delete(groupId);
-            console.info(`Group ${groupId} is now empty and has been deleted.`);
-          } else {
-            console.info(`Client ${clientId} removed from group ${groupId}. Remaining members: ${Array.from(group).join(", ")}`);
-          }
-        });
         this._emit("disconnect", clientId);
       });
 
@@ -88,28 +113,34 @@ export class TelnetAdapter implements NetworkAdapter {
       });
     });
 
-    // Listen on port 4000 (classic MUD default)
-    await new Promise<void>((resolve) => this.server!.listen(4000, resolve));
-    // Optionally, log server start
-    // console.log("Telnet server listening on port 4000");
+    // Listen on configured port with proper error handling
+    await new Promise<void>((resolve, reject) => {
+      this.server!.once("error", reject);
+      this.server!.listen(this.config.port, resolve);
+    });
+    console.log(`Telnet server listening on port ${this.config.port}`);
   }
 
-  public async stop() {
+  public async stop(graceful = true) {
     if (this.server) {
-      this.server.close();
-      this.server = undefined;
-      this.clients.forEach((socket, clientId) => {
-        socket.destroy();
+      this.connectionManager.getAllClients().forEach((socket, clientId) => {
+        if (graceful) {
+          socket.end("Server shutting down.\r\n");
+        } else {
+          socket.destroy();
+        }
         this._emit("disconnect", clientId);
       });
-      this.clients.clear();
+      this.server.close();
+      this.server = undefined;
+      this.connectionManager.clear();
       this.clientStates.clear();
       this.idleTimeouts.clearAll();
     }
   }
 
   public send(clientId: string, message: string | object) {
-    const socket = this.clients.get(clientId);
+    const socket = this.connectionManager.getClient(clientId);
     if (socket) {
       const output = typeof message === "string" ? message : JSON.stringify(message);
       socket.write(output + "\r\n");
@@ -118,41 +149,25 @@ export class TelnetAdapter implements NetworkAdapter {
 
   // Add a client to a group
   public addClientToGroup(clientId: string, groupId: string): void {
-    if (!this.groups.has(groupId)) {
-      this.groups.set(groupId, new Set());
-    }
-    this.groups.get(groupId)!.add(clientId);
+    this.groupManager.addClientToGroup(clientId, groupId);
   }
 
   // Remove a client from a group
   public removeClientFromGroup(clientId: string, groupId: string): void {
-    const group = this.groups.get(groupId);
-    if (group) {
-      group.delete(clientId);
-      if (group.size === 0) {
-        this.groups.delete(groupId);
-      }
-    }
+    this.groupManager.removeClientFromGroup(clientId, groupId);
   }
 
   // Broadcast to a group
   public broadcast(message: string | object, groupId?: string) {
-    const output = typeof message === "string" ? message : JSON.stringify(message);
-    if (groupId) {
-      const group = this.groups.get(groupId);
-      if (group) {
-        for (const clientId of group) {
-          const socket = this.clients.get(clientId);
-          if (socket) {
-            socket.write(output + "\r\n");
-          }
-        }
-      }
-    } else {
-      this.clients.forEach((socket) => {
+    this.groupManager.broadcast(
+      this.connectionManager.getAllClients(),
+      message,
+      (socket: net.Socket, msg: string | object) => {
+        const output = typeof msg === "string" ? msg : JSON.stringify(msg);
         socket.write(output + "\r\n");
-      });
-    }
+      },
+      groupId
+    );
   }
 
   public on(event: 'connect' | 'disconnect' | 'error' | 'message', handler: (clientId: string, data?: any) => void) {
@@ -174,64 +189,102 @@ export class TelnetAdapter implements NetworkAdapter {
 
   private _handleMessage(clientId: string, message: any) {
     let index = 0;
-    const next = () => {
+    const next = (err?: Error) => {
+      if (err) {
+        this._emit("error", clientId, { message: err.message });
+        return;
+      }
       const mw = this.middlewares[index++];
-      if (mw) mw(clientId, message, next);
-      else this._emit("message", clientId, message);
+      if (mw) {
+        try {
+          mw(clientId, message, next);
+        } catch (err) {
+          next(err as Error);
+        }
+      } else {
+        this._emit("message", clientId, message);
+      }
     };
     next();
   }
 
   public negotiate?(clientId: string, option: string, value: any): void {
-    // TODO: Implement Telnet option negotiation (IAC)
+    const socket = this.connectionManager.getClient(clientId);
+    if (!socket) return;
+    TelnetProtocolHandler.negotiate(socket, option, value);
   }
 
   // Telnet-specific public API
-  public sendIAC(clientId: string, command: number, option?: number, value?: number): void {
-    // TODO: Implement sending Telnet IAC command
+  public sendIAC(clientId: string, command: number, option?: number): void {
+    const socket = this.connectionManager.getClient(clientId);
+    if (!socket) return;
+    TelnetProtocolHandler.sendIAC(socket, command, option);
   }
 
   public sendANSI(clientId: string, ansiSequence: string): void {
-    // TODO: Implement sending ANSI codes
+    const socket = this.connectionManager.getClient(clientId);
+    if (!socket) return;
+    TelnetProtocolHandler.sendANSI(socket, ansiSequence);
   }
 
   public setPrompt(clientId: string, prompt: string): void {
-    // TODO: Implement prompt display
+    const socket = this.connectionManager.getClient(clientId);
+    if (!socket) return;
+    TelnetProtocolHandler.setPrompt(socket, prompt);
   }
 
   public handleSubnegotiation(clientId: string, type: string, data: any): void {
-    // TODO: Implement GMCP/MSSP/MSDP/MXP handling
+    const socket = this.connectionManager.getClient(clientId);
+    if (!socket) return;
+    TelnetProtocolHandler.handleSubnegotiation(socket, clientId, type, data);
   }
 
   public getSocket(clientId: string): net.Socket | undefined {
-    return this.clients.get(clientId);
+    return this.connectionManager.getClient(clientId);
+  }
+
+  // Enhanced methods for MUD functionality
+  public sendColoredMessage(clientId: string, message: string, color?: string): void {
+    const socket = this.connectionManager.getClient(clientId);
+    if (!socket) return;
+    TelnetProtocolHandler.sendColoredMessage(socket, message, color);
+  }
+
+  public getConnectionInfo(clientId: string): { ip?: string, port?: number, connected: Date } | null {
+    return this.connectionManager.getConnectionInfo(clientId);
+  }
+
+  public getActiveConnections(): number {
+    return this.connectionManager.getActiveConnections();
+  }
+
+  public getConnectionsByIP(): Map<string, number> {
+    return this.connectionManager.getConnectionsByIP();
+  }
+
+  public getAllClients(): Map<string, net.Socket> {
+    return this.connectionManager.getAllClients();
   }
 
   public setIdleTimeout(clientId: string, ms: number): void {
     this.idleTimeouts.set(clientId, ms, () => {
-      const socket = this.clients.get(clientId);
+      const socket = this.connectionManager.getClient(clientId);
       if (socket) {
         socket.end("Idle timeout.\r\n");
-        this.clients.delete(clientId);
-        this.clientStates.delete(clientId);
+        this._cleanupClient(clientId);
         this._emit("disconnect", clientId);
       }
     });
   }
 
-  // Example private helper
-  private _parseTelnetData(data: Buffer): string {
-    let text = '';
-    for (let i = 0; i < data.length; i++) {
-      if (data[i] === 255) { // IAC
-        i++; // skip command
-        const cmd = data[i];
-        if (cmd >= 251 && cmd <= 254) i++; // skip option
-        continue; // ignore for now
-      }
-      text += String.fromCharCode(data[i]);
-    }
-    return text;
+  // Helper method to cleanup client resources
+  private _cleanupClient(clientId: string): void {
+    this.connectionManager.removeClient(clientId);
+    this.clientStates.delete(clientId);
+    this.idleTimeouts.clear(clientId);
+
+    // Remove from all groups
+    this.groupManager.removeClientFromAllGroups(clientId);
   }
 
   private _emit(event: string, clientId: string, data?: any) {
@@ -241,5 +294,70 @@ export class TelnetAdapter implements NetworkAdapter {
         handler(clientId, data);
       }
     }
+  }
+
+  // Traditional MUD-style connection management methods
+  public getConnectionLimits(): ConnectionLimits {
+    return {
+      maxConnections: this.config.maxConnections,
+      maxConnectionsPerIP: this.config.maxConnectionsPerIP
+    };
+  }
+
+  public setConnectionLimits(limits: Partial<ConnectionLimits>): void {
+    if (limits.maxConnections !== undefined) {
+      this.config.maxConnections = limits.maxConnections;
+    }
+    if (limits.maxConnectionsPerIP !== undefined) {
+      this.config.maxConnectionsPerIP = limits.maxConnectionsPerIP;
+    }
+
+    // Update the connection manager with new limits
+    this.connectionManager = new ConnectionManager({
+      maxConnections: this.config.maxConnections,
+      maxConnectionsPerIP: this.config.maxConnectionsPerIP
+    });
+  }
+
+  public getConnectionStats(): {
+    total: number;
+    byIP: Map<string, number>;
+    limits: ConnectionLimits;
+    canAcceptNew: boolean;
+  } {
+    const limits = this.getConnectionLimits();
+    const total = this.connectionManager.getActiveConnections();
+    const byIP = this.connectionManager.getConnectionsByIP();
+
+    return {
+      total,
+      byIP,
+      limits,
+      canAcceptNew: total < limits.maxConnections
+    };
+  }
+
+  public kickExcessConnections(): number {
+    const stats = this.getConnectionStats();
+    let kicked = 0;
+
+    // Kick connections that exceed per-IP limits (traditional MUD behavior)
+    stats.byIP.forEach((count, ip) => {
+      if (count > stats.limits.maxConnectionsPerIP) {
+        const excess = count - stats.limits.maxConnectionsPerIP;
+        const clientsFromIP = Array.from(this.connectionManager.getAllClients().entries())
+          .filter(([_, socket]) => socket.remoteAddress === ip)
+          .slice(0, excess); // Keep older connections, kick newer ones
+
+        clientsFromIP.forEach(([clientId, socket]) => {
+          socket.end("Too many connections from your IP address.\r\n");
+          this._cleanupClient(clientId);
+          this._emit("disconnect", clientId);
+          kicked++;
+        });
+      }
+    });
+
+    return kicked;
   }
 }
