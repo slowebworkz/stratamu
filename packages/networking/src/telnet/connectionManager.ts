@@ -8,9 +8,12 @@ export class ConnectionManager {
   private connectionCounts = new Map<string, number>();
   private connectionTimes = new Map<string, Date>();
 
-  constructor(private limits: ConnectionLimits) { }
+  constructor(private limits: ConnectionLimits) {}
 
-  canAcceptConnection(totalConnections: number, remoteAddress?: string): boolean {
+  canAcceptConnection(
+    totalConnections: number,
+    remoteAddress?: string,
+  ): boolean {
     // Check total connections
     if (totalConnections >= this.limits.maxConnections) {
       return false;
@@ -63,7 +66,9 @@ export class ConnectionManager {
     return this.clients;
   }
 
-  getConnectionInfo(clientId: string): { ip?: string, port?: number, connected: Date } | null {
+  getConnectionInfo(
+    clientId: string,
+  ): { ip?: string; port?: number; connected: Date } | null {
     const socket = this.clients.get(clientId);
     const connectedTime = this.connectionTimes.get(clientId);
 
@@ -72,7 +77,7 @@ export class ConnectionManager {
     return {
       ip: socket.remoteAddress,
       port: socket.remotePort,
-      connected: connectedTime || new Date()
+      connected: connectedTime || new Date(),
     };
   }
 

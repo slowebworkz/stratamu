@@ -15,7 +15,7 @@ export interface GameNetworkingConstants {
 
   // Protocol preferences
   readonly supportedProtocols: string[];
-  readonly preferredProtocol: 'telnet' | 'websocket' | 'both';
+  readonly preferredProtocol: "telnet" | "websocket" | "both";
 
   // Buffer limits
   readonly maxInputLength: number;
@@ -51,8 +51,8 @@ export interface GameSystemConstants extends GameNetworkingConstants {
  * MUD-specific constants (combat-oriented games)
  */
 export interface MUDConstants extends GameSystemConstants {
-  readonly gameType: 'MUD';
-  readonly combatSystem: 'turn-based' | 'real-time' | 'hybrid';
+  readonly gameType: "MUD";
+  readonly combatSystem: "turn-based" | "real-time" | "hybrid";
   readonly allowPK: boolean;
   readonly multiclassing: boolean;
 }
@@ -61,7 +61,7 @@ export interface MUDConstants extends GameSystemConstants {
  * MUSH-specific constants (roleplay-oriented games)
  */
 export interface MUSHConstants extends GameSystemConstants {
-  readonly gameType: 'MUSH';
+  readonly gameType: "MUSH";
   readonly posesEnabled: boolean;
   readonly objectCreation: boolean;
   readonly codingAllowed: boolean;
@@ -72,7 +72,7 @@ export interface MUSHConstants extends GameSystemConstants {
  * MOO-specific constants (object-oriented games)
  */
 export interface MOOConstants extends GameSystemConstants {
-  readonly gameType: 'MOO';
+  readonly gameType: "MOO";
   readonly programmingAllowed: boolean;
   readonly verbProgramming: boolean;
   readonly maxVerbsPerObject: number;
@@ -83,7 +83,7 @@ export interface MOOConstants extends GameSystemConstants {
  * MUCK-specific constants (building/social games)
  */
 export interface MUCKConstants extends GameSystemConstants {
-  readonly gameType: 'MUCK';
+  readonly gameType: "MUCK";
   readonly buildingEnabled: boolean;
   readonly mufProgramming: boolean;
   readonly maxRoomsPerPlayer: number;

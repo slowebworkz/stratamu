@@ -1,14 +1,14 @@
 import * as net from "node:net";
 
 export class TelnetProtocolHandler {
-
   /**
    * Parse incoming Telnet data, handling IAC commands and extracting text
    */
   static parseTelnetData(data: Buffer): string {
-    let text = '';
+    let text = "";
     for (let i = 0; i < data.length; i++) {
-      if (data[i] === 255) { // IAC (Interpret As Command)
+      if (data[i] === 255) {
+        // IAC (Interpret As Command)
         i++; // skip to command byte
         const cmd = data[i];
 
@@ -21,15 +21,18 @@ export class TelnetProtocolHandler {
 
       // Convert byte to character, handling common line endings
       const char = data[i];
-      if (char === 13) { // CR (carriage return)
+      if (char === 13) {
+        // CR (carriage return)
         // Skip LF if it follows CR
         if (i + 1 < data.length && data[i + 1] === 10) {
           i++; // skip LF
         }
-        text += '\n';
-      } else if (char === 10) { // LF (line feed) without CR
-        text += '\n';
-      } else if (char >= 32 || char === 9) { // printable chars + tab
+        text += "\n";
+      } else if (char === 10) {
+        // LF (line feed) without CR
+        text += "\n";
+      } else if (char >= 32 || char === 9) {
+        // printable chars + tab
         text += String.fromCharCode(char);
       }
       // ignore other control characters
@@ -41,9 +44,10 @@ export class TelnetProtocolHandler {
    * Send Telnet IAC command
    */
   static sendIAC(socket: net.Socket, command: number, option?: number): void {
-    const buffer = option !== undefined
-      ? Buffer.from([255, command, option]) // IAC + command + option
-      : Buffer.from([255, command]); // IAC + command
+    const buffer =
+      option !== undefined
+        ? Buffer.from([255, command, option]) // IAC + command + option
+        : Buffer.from([255, command]); // IAC + command
 
     socket.write(buffer);
   }
@@ -65,21 +69,25 @@ export class TelnetProtocolHandler {
   /**
    * Send colored message with ANSI codes
    */
-  static sendColoredMessage(socket: net.Socket, message: string, color?: string): void {
+  static sendColoredMessage(
+    socket: net.Socket,
+    message: string,
+    color?: string,
+  ): void {
     if (color) {
       const colorCodes: Record<string, string> = {
-        'red': '31m',
-        'green': '32m',
-        'yellow': '33m',
-        'blue': '34m',
-        'magenta': '35m',
-        'cyan': '36m',
-        'white': '37m',
-        'bold': '1m',
-        'reset': '0m'
+        red: "31m",
+        green: "32m",
+        yellow: "33m",
+        blue: "34m",
+        magenta: "35m",
+        cyan: "36m",
+        white: "37m",
+        bold: "1m",
+        reset: "0m",
       };
 
-      const colorCode = colorCodes[color.toLowerCase()] || '0m';
+      const colorCode = colorCodes[color.toLowerCase()] || "0m";
       socket.write(`\x1b[${colorCode}${message}\x1b[0m\r\n`);
     } else {
       socket.write(message + "\r\n");
@@ -92,10 +100,10 @@ export class TelnetProtocolHandler {
   static negotiate(socket: net.Socket, option: string, value: any): void {
     // Handle common options
     switch (option.toLowerCase()) {
-      case 'echo':
+      case "echo":
         this.sendIAC(socket, value ? 251 : 252, 1); // WILL/WONT ECHO
         break;
-      case 'sga':
+      case "sga":
         this.sendIAC(socket, value ? 251 : 252, 3); // WILL/WONT SUPPRESS-GO-AHEAD
         break;
       default:
@@ -107,25 +115,37 @@ export class TelnetProtocolHandler {
   /**
    * Handle Telnet subnegotiation for GMCP/MSSP/MSDP/MXP
    */
-  static handleSubnegotiation(socket: net.Socket, clientId: string, type: string, data: any): void {
+  static handleSubnegotiation(
+    socket: net.Socket,
+    clientId: string,
+    type: string,
+    data: any,
+  ): void {
     switch (type.toLowerCase()) {
-      case 'gmcp':
+      case "gmcp":
         // Generic MUD Communication Protocol
-        if (typeof data === 'object') {
+        if (typeof data === "object") {
           const json = JSON.stringify(data);
-          const buffer = Buffer.from([255, 250, 201, ...Buffer.from(json), 255, 240]);
+          const buffer = Buffer.from([
+            255,
+            250,
+            201,
+            ...Buffer.from(json),
+            255,
+            240,
+          ]);
           socket.write(buffer);
         }
         break;
-      case 'mssp':
+      case "mssp":
         // MUD Server Status Protocol
         console.log(`MSSP data for ${clientId}:`, data);
         break;
-      case 'msdp':
+      case "msdp":
         // MUD Server Data Protocol
         console.log(`MSDP data for ${clientId}:`, data);
         break;
-      case 'mxp':
+      case "mxp":
         // MUD eXtension Protocol
         console.log(`MXP data for ${clientId}:`, data);
         break;

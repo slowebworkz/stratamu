@@ -11,14 +11,19 @@ export interface NetworkAdapter {
   // Messaging
   send(clientId: string, message: string | object): void;
   broadcast(message: string | object, groupId?: string): void;
-  on(event: 'connect' | 'disconnect' | 'error' | 'message', handler: (clientId: string, data?: any) => void): void;
+  on(
+    event: "connect" | "disconnect" | "error" | "message",
+    handler: (clientId: string, data?: any) => void,
+  ): void;
 
   // Session/state
   getClientState(clientId: string): Record<string, any>;
   setClientState(clientId: string, state: Record<string, any>): void;
 
   // Middleware (optional)
-  use?(middleware: (clientId: string, message: any, next: () => void) => void): void;
+  use?(
+    middleware: (clientId: string, message: any, next: () => void) => void,
+  ): void;
 
   // Option negotiation (for Telnet, no-op for others)
   negotiate?(clientId: string, option: string, value: any): void;
