@@ -34,7 +34,9 @@ export class GroupManager {
         this.groups.delete(groupId);
         console.info(`Group ${groupId} is now empty and has been deleted.`);
       } else {
-        console.info(`Client ${clientId} removed from group ${groupId}. Remaining members: ${Array.from(group).join(", ")}`);
+        console.info(
+          `Client ${clientId} removed from group ${groupId}. Remaining members: ${Array.from(group).join(", ")}`,
+        );
       }
     });
   }
@@ -47,7 +49,7 @@ export class GroupManager {
     clients: Map<string, T>,
     message: string | object,
     sendFunction: (client: T, message: string | object) => void,
-    groupId?: string
+    groupId?: string,
   ): void {
     if (groupId) {
       const group = this.groups.get(groupId);

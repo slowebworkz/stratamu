@@ -18,20 +18,24 @@ export class TelnetAdapter implements NetworkAdapter {
   private idleTimeouts = new IdleTimeoutManager();
   private connectionManager: ConnectionManager;
   private groupManager = new GroupManager();
-  private handlers: { [event: string]: Array<(clientId: string, data?: any) => void> } = {};
+  private handlers: {
+    [event: string]: Array<(clientId: string, data?: any) => void>;
+  } = {};
   private server?: net.Server;
-  private middlewares: Array<(clientId: string, message: any, next: () => void) => void> = [];
+  private middlewares: Array<
+    (clientId: string, message: any, next: () => void) => void
+  > = [];
   private config: Required<TelnetConfig> = {
     port: 4000,
     idleTimeoutMs: 600000, // 10 minutes
     maxConnections: 100,
-    maxConnectionsPerIP: 5
+    maxConnectionsPerIP: 5,
   };
 
   constructor() {
     this.connectionManager = new ConnectionManager({
       maxConnections: this.config.maxConnections,
-      maxConnectionsPerIP: this.config.maxConnectionsPerIP
+      maxConnectionsPerIP: this.config.maxConnectionsPerIP,
     });
   }
 
@@ -46,7 +50,7 @@ export class TelnetAdapter implements NetworkAdapter {
     // Update connection manager with new limits
     this.connectionManager = new ConnectionManager({
       maxConnections: this.config.maxConnections,
-      maxConnectionsPerIP: this.config.maxConnectionsPerIP
+      maxConnectionsPerIP: this.config.maxConnectionsPerIP,
     });
 
     this.server = net.createServer((socket) => {
@@ -55,11 +59,21 @@ export class TelnetAdapter implements NetworkAdapter {
       const clientId = `${remoteAddress ?? "unknown"}:${remotePort ?? "0"}:${randomUUID()}`;
 
       // Rate limiting using ConnectionManager
-      if (!this.connectionManager.canAcceptConnection(this.connectionManager.getActiveConnections(), remoteAddress)) {
-        if (this.connectionManager.getActiveConnections() >= this.config.maxConnections) {
+      if (
+        !this.connectionManager.canAcceptConnection(
+          this.connectionManager.getActiveConnections(),
+          remoteAddress,
+        )
+      ) {
+        if (
+          this.connectionManager.getActiveConnections() >=
+          this.config.maxConnections
+        ) {
           socket.end("Server is full. Please try again later.\r\n");
         } else {
-          socket.end("Too many connections from your IP. Please try again later.\r\n");
+          socket.end(
+            "Too many connections from your IP. Please try again later.\r\n",
+          );
         }
         return;
       }
@@ -92,7 +106,9 @@ export class TelnetAdapter implements NetworkAdapter {
       // Handle client disconnect
       socket.on("close", () => {
         this._cleanupClient(clientId);
-        console.info(`Client ${clientId} disconnected. Removing from all groups.`);
+        console.info(
+          `Client ${clientId} disconnected. Removing from all groups.`,
+        );
         this._emit("disconnect", clientId);
       });
 
@@ -142,7 +158,8 @@ export class TelnetAdapter implements NetworkAdapter {
   public send(clientId: string, message: string | object) {
     const socket = this.connectionManager.getClient(clientId);
     if (socket) {
-      const output = typeof message === "string" ? message : JSON.stringify(message);
+      const output =
+        typeof message === "string" ? message : JSON.stringify(message);
       socket.write(output + "\r\n");
     }
   }
@@ -166,11 +183,14 @@ export class TelnetAdapter implements NetworkAdapter {
         const output = typeof msg === "string" ? msg : JSON.stringify(msg);
         socket.write(output + "\r\n");
       },
-      groupId
+      groupId,
     );
   }
 
-  public on(event: 'connect' | 'disconnect' | 'error' | 'message', handler: (clientId: string, data?: any) => void) {
+  public on(
+    event: "connect" | "disconnect" | "error" | "message",
+    handler: (clientId: string, data?: any) => void,
+  ) {
     if (!this.handlers[event]) this.handlers[event] = [];
     this.handlers[event].push(handler);
   }
@@ -183,7 +203,9 @@ export class TelnetAdapter implements NetworkAdapter {
     this.clientStates.set(clientId, state);
   }
 
-  public use(middleware: (clientId: string, message: any, next: () => void) => void) {
+  public use(
+    middleware: (clientId: string, message: any, next: () => void) => void,
+  ) {
     this.middlewares.push(middleware);
   }
 
@@ -244,13 +266,19 @@ export class TelnetAdapter implements NetworkAdapter {
   }
 
   // Enhanced methods for MUD functionality
-  public sendColoredMessage(clientId: string, message: string, color?: string): void {
+  public sendColoredMessage(
+    clientId: string,
+    message: string,
+    color?: string,
+  ): void {
     const socket = this.connectionManager.getClient(clientId);
     if (!socket) return;
     TelnetProtocolHandler.sendColoredMessage(socket, message, color);
   }
 
-  public getConnectionInfo(clientId: string): { ip?: string, port?: number, connected: Date } | null {
+  public getConnectionInfo(
+    clientId: string,
+  ): { ip?: string; port?: number; connected: Date } | null {
     return this.connectionManager.getConnectionInfo(clientId);
   }
 
@@ -300,7 +328,7 @@ export class TelnetAdapter implements NetworkAdapter {
   public getConnectionLimits(): ConnectionLimits {
     return {
       maxConnections: this.config.maxConnections,
-      maxConnectionsPerIP: this.config.maxConnectionsPerIP
+      maxConnectionsPerIP: this.config.maxConnectionsPerIP,
     };
   }
 
@@ -315,7 +343,7 @@ export class TelnetAdapter implements NetworkAdapter {
     // Update the connection manager with new limits
     this.connectionManager = new ConnectionManager({
       maxConnections: this.config.maxConnections,
-      maxConnectionsPerIP: this.config.maxConnectionsPerIP
+      maxConnectionsPerIP: this.config.maxConnectionsPerIP,
     });
   }
 
@@ -333,7 +361,7 @@ export class TelnetAdapter implements NetworkAdapter {
       total,
       byIP,
       limits,
-      canAcceptNew: total < limits.maxConnections
+      canAcceptNew: total < limits.maxConnections,
     };
   }
 
@@ -345,7 +373,9 @@ export class TelnetAdapter implements NetworkAdapter {
     stats.byIP.forEach((count, ip) => {
       if (count > stats.limits.maxConnectionsPerIP) {
         const excess = count - stats.limits.maxConnectionsPerIP;
-        const clientsFromIP = Array.from(this.connectionManager.getAllClients().entries())
+        const clientsFromIP = Array.from(
+          this.connectionManager.getAllClients().entries(),
+        )
           .filter(([_, socket]) => socket.remoteAddress === ip)
           .slice(0, excess); // Keep older connections, kick newer ones
 
