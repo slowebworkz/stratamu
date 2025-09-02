@@ -48,18 +48,13 @@ importers:
       typescript-eslint:
         specifier: ~8.39.1
         version: 8.39.1(eslint@9.33.0)(typescript@5.9.2)
+      undici-types:
+        specifier: ^7.15.0
+        version: 7.15.0
 
-  packages/core-engine:
-    devDependencies:
-      '@types/node':
-        specifier: latest
-        version: 24.3.0
+  packages/core-engine: {}
 
-  packages/networking:
-    devDependencies:
-      '@types/node':
-        specifier: latest
-        version: 24.3.0
+  packages/networking: {}
 
 packages:
 
@@ -1260,6 +1255,9 @@ packages:
 
   undici-types@7.10.0:
     resolution: {integrity: sha512-t5Fy/nfn+14LuOc2KNYg75vZqClpAiqscVvMygNnlsHBFpSXdJaYtXMcdNLpl/Qvc3P2cB3s6lOV51nqsFq4ag==}
+
+  undici-types@7.15.0:
+    resolution: {integrity: sha512-Xyn5T99wU4kPhLZMm+ElE6M+IoSeG8Se7eG9xoZ82ZgVHJ07wb/IWcDZeXe2GOPkavcJ8ko5oSlXMDRl/QgY9Q==}
 
   unified@9.2.2:
     resolution: {integrity: sha512-Sg7j110mtefBD+qunSLO1lqOEKdrwBFBrR6Qd8f4uwkhWNlbkaqwHse6e7QvD3AP/MNoJdEDLaf8OxYyoWgorQ==}
@@ -2855,6 +2853,8 @@ snapshots:
   underscore@1.13.7: {}
 
   undici-types@7.10.0: {}
+
+  undici-types@7.15.0: {}
 
   unified@9.2.2:
     dependencies:
