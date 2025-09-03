@@ -1,5 +1,5 @@
 // MUCK constants based on Fuzzball MUCK and other MUCK servers
-import type { MUCKConstants } from "@/types/gameConstants";
+import type { MUCKConstants } from "@/types/game-constants";
 
 export const MUCK_CONSTANTS: MUCKConstants = {
   gameType: "MUCK",
