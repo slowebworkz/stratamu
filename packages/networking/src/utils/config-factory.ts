@@ -1,5 +1,5 @@
 // configFactory.ts - Convert game constants to networking configurations
-import type { GameNetworkingConstants } from "@/types/gameConstants";
+import type { GameNetworkingConstants } from "@/types/game-constants";
 import type { TelnetConfig, WebSocketConfig } from "@/types/config";
 
 /**
