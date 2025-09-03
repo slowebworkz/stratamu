@@ -2,7 +2,9 @@
 
 ## Overview
 
-You asked a great question: **"Should game-specific constants like max connections, port numbers, etc. be hardcoded in game adapters and passed to TelnetAdapter when instantiating?"**
+You asked a great question: **"Should game-specific constants like max
+connections, port numbers, etc. be hardcoded in game adapters and passed to
+TelnetAdapter when instantiating?"**
 
 **Answer: Yes, absolutely!** This is the correct architectural approach.
 
@@ -12,7 +14,8 @@ You asked a great question: **"Should game-specific constants like max connectio
 
 - **Networking Layer**: Generic, reusable across game types
 - **Game Adapters**: Define game-specific rules and limits
-- **Clear Boundary**: Game logic stays in game adapters, networking stays protocol-focused
+- **Clear Boundary**: Game logic stays in game adapters, networking stays
+  protocol-focused
 
 ### ✅ Maintainability
 
@@ -33,22 +36,22 @@ You asked a great question: **"Should game-specific constants like max connectio
 ```typescript
 // In each game adapter package
 export const MUD_CONSTANTS = {
-  gameType: "MUD",
+  gameType: 'MUD',
   maxConnections: 300, // CircleMUD standard
   maxConnectionsPerIP: 5, // Anti-abuse
   defaultPort: 4000, // Traditional MUD port
-  idleTimeoutMs: 900000, // 15 minutes
+  idleTimeoutMs: 900000 // 15 minutes
   // ... other MUD-specific limits
-} as const;
+} as const
 
 export const MUSH_CONSTANTS = {
-  gameType: "MUSH",
+  gameType: 'MUSH',
   maxConnections: 500, // MUSHes support more users
   maxConnectionsPerIP: 10, // More lenient for RP
   defaultPort: 4201, // Common MUSH port
-  idleTimeoutMs: 1800000, // 30 minutes (more social)
+  idleTimeoutMs: 1800000 // 30 minutes (more social)
   // ... other MUSH-specific limits
-} as const;
+} as const
 ```
 
 ### 2. Configuration Factory
@@ -56,14 +59,14 @@ export const MUSH_CONSTANTS = {
 ```typescript
 // Convert game constants to networking config
 function createTelnetConfig(
-  gameConstants: GameNetworkingConstants,
+  gameConstants: GameNetworkingConstants
 ): TelnetConfig {
   return {
     port: gameConstants.defaultPort,
     idleTimeoutMs: gameConstants.idleTimeoutMs,
     maxConnections: gameConstants.maxConnections,
-    maxConnectionsPerIP: gameConstants.maxConnectionsPerIP,
-  };
+    maxConnectionsPerIP: gameConstants.maxConnectionsPerIP
+  }
 }
 ```
 
@@ -74,18 +77,18 @@ function createTelnetConfig(
 export class MUDGameAdapter {
   async start() {
     // 1. Use game-specific constants
-    const gameConstants = MUD_CONSTANTS;
+    const gameConstants = MUD_CONSTANTS
 
     // 2. Convert to networking config
-    const telnetConfig = createTelnetConfig(gameConstants);
+    const telnetConfig = createTelnetConfig(gameConstants)
 
     // 3. Pass to networking layer
-    const adapter = new TelnetAdapter();
-    await adapter.start(telnetConfig);
+    const adapter = new TelnetAdapter()
+    await adapter.start(telnetConfig)
 
     console.log(
-      `MUD Server: ${telnetConfig.port}, max: ${telnetConfig.maxConnections}`,
-    );
+      `MUD Server: ${telnetConfig.port}, max: ${telnetConfig.maxConnections}`
+    )
   }
 }
 ```
@@ -128,11 +131,16 @@ Based on CircleMUD, DikuMUD, ROM, and other classic codebases:
 
 ## Benefits of This Architecture
 
-1. **Historical Accuracy**: Each game type uses limits proven by decades of traditional servers
-2. **Flexibility**: Can override defaults per instance while keeping sane game-type defaults
-3. **Documentation**: Constants serve as living documentation of game type characteristics
-4. **Validation**: Can validate constants are within reasonable ranges before use
-5. **Evolution**: Game types can evolve their constants based on modern hardware/network capabilities
+1. **Historical Accuracy**: Each game type uses limits proven by decades of
+   traditional servers
+2. **Flexibility**: Can override defaults per instance while keeping sane
+   game-type defaults
+3. **Documentation**: Constants serve as living documentation of game type
+   characteristics
+4. **Validation**: Can validate constants are within reasonable ranges before
+   use
+5. **Evolution**: Game types can evolve their constants based on modern
+   hardware/network capabilities
 
 ## Files Created
 
@@ -146,10 +154,12 @@ Based on CircleMUD, DikuMUD, ROM, and other classic codebases:
 
 ## Summary
 
-Your instinct was exactly right! Game adapters should define their constants and pass them to the networking layer. This creates a clean separation where:
+Your instinct was exactly right! Game adapters should define their constants and
+pass them to the networking layer. This creates a clean separation where:
 
 - **TelnetAdapter**: Generic, configurable networking
 - **Game Adapters**: Game-specific rules and constants
 - **Clear Interface**: Configuration objects bridge the gap
 
-This pattern is used by many successful modular systems and keeps the codebase maintainable as you add more game types.
+This pattern is used by many successful modular systems and keeps the codebase
+maintainable as you add more game types.

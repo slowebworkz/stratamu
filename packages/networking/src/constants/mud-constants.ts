@@ -1,8 +1,8 @@
 // Traditional MUD constants based on CircleMUD, DikuMUD, and ROM codebases
-import type { MUDConstants } from "@/types/game-constants";
+import type { MUDConstants } from '@/types/game-constants'
 
 export const MUD_CONSTANTS: MUDConstants = {
-  gameType: "MUD",
+  gameType: 'MUD',
 
   // Networking limits (based on CircleMUD defaults)
   maxConnections: 300, // CircleMUD standard
@@ -12,8 +12,8 @@ export const MUD_CONSTANTS: MUDConstants = {
   connectionTimeoutMs: 30000, // 30 seconds for connection setup
 
   // Protocol support
-  supportedProtocols: ["telnet", "websocket"],
-  preferredProtocol: "telnet",
+  supportedProtocols: ['telnet', 'websocket'],
+  preferredProtocol: 'telnet',
 
   // Buffer limits
   maxInputLength: 512, // MAX_INPUT_LENGTH in CircleMUD
@@ -40,7 +40,7 @@ export const MUD_CONSTANTS: MUDConstants = {
   maxEmoteLength: 512, // Emotes can be longer
 
   // MUD-specific settings
-  combatSystem: "turn-based", // Traditional round-based combat
+  combatSystem: 'turn-based', // Traditional round-based combat
   allowPK: true, // Player vs Player combat
-  multiclassing: false, // Single class (CircleMUD style)
-} as const;
+  multiclassing: false // Single class (CircleMUD style)
+} as const

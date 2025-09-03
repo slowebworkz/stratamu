@@ -1,8 +1,8 @@
 // Traditional MUSH constants based on PennMUSH, TinyMUSH, and MUX codebases
-import type { MUSHConstants } from "@/types/game-constants";
+import type { MUSHConstants } from '@/types/game-constants'
 
 export const MUSH_CONSTANTS: MUSHConstants = {
-  gameType: "MUSH",
+  gameType: 'MUSH',
 
   // Networking limits (MUSH servers typically handle more connections)
   maxConnections: 500, // MUSHes often support more concurrent users
@@ -12,8 +12,8 @@ export const MUSH_CONSTANTS: MUSHConstants = {
   connectionTimeoutMs: 60000, // 60 seconds for connection setup
 
   // Protocol support
-  supportedProtocols: ["telnet", "websocket"],
-  preferredProtocol: "telnet",
+  supportedProtocols: ['telnet', 'websocket'],
+  preferredProtocol: 'telnet',
 
   // Buffer limits (MUSHes handle longer text)
   maxInputLength: 8192, // Much larger for roleplay poses
@@ -43,5 +43,5 @@ export const MUSH_CONSTANTS: MUSHConstants = {
   posesEnabled: true, // :pose and ;pose commands
   objectCreation: true, // Players can create objects
   codingAllowed: true, // Softcode programming
-  maxObjectsPerPlayer: 1000, // Generous object quota for builders
-} as const;
+  maxObjectsPerPlayer: 1000 // Generous object quota for builders
+} as const

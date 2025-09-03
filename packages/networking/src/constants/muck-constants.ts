@@ -1,8 +1,8 @@
 // MUCK constants based on Fuzzball MUCK and other MUCK servers
-import type { MUCKConstants } from "@/types/game-constants";
+import type { MUCKConstants } from '@/types/game-constants'
 
 export const MUCK_CONSTANTS: MUCKConstants = {
-  gameType: "MUCK",
+  gameType: 'MUCK',
 
   // Networking limits (MUCKs focus on building and social)
   maxConnections: 150, // Smaller communities
@@ -12,8 +12,8 @@ export const MUCK_CONSTANTS: MUCKConstants = {
   connectionTimeoutMs: 40000, // 40 seconds
 
   // Protocol support
-  supportedProtocols: ["telnet"],
-  preferredProtocol: "telnet", // Traditional Telnet
+  supportedProtocols: ['telnet'],
+  preferredProtocol: 'telnet', // Traditional Telnet
 
   // Buffer limits
   maxInputLength: 2048, // Building commands can be long
@@ -43,5 +43,5 @@ export const MUCK_CONSTANTS: MUCKConstants = {
   buildingEnabled: true, // Core feature
   mufProgramming: true, // MUF (Multi-User Forth) programming
   maxRoomsPerPlayer: 500, // Generous building quota
-  maxActionsPerPlayer: 200, // Custom MUF actions per player
-} as const;
+  maxActionsPerPlayer: 200 // Custom MUF actions per player
+} as const

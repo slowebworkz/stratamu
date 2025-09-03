@@ -2,5 +2,5 @@
 export {
   createTelnetConfig,
   createWebSocketConfig,
-  validateGameConstants,
-} from "./config-factory";
+  validateGameConstants
+} from './config-factory'

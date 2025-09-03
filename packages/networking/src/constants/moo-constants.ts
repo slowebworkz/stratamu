@@ -1,8 +1,8 @@
 // MOO constants based on LambdaMOO and other MOO servers
-import type { MOOConstants } from "@/types/game-constants";
+import type { MOOConstants } from '@/types/game-constants'
 
 export const MOO_CONSTANTS: MOOConstants = {
-  gameType: "MOO",
+  gameType: 'MOO',
 
   // Networking limits (MOOs are programming-heavy)
   maxConnections: 200, // Moderate concurrent users
@@ -12,8 +12,8 @@ export const MOO_CONSTANTS: MOOConstants = {
   connectionTimeoutMs: 45000, // 45 seconds
 
   // Protocol support
-  supportedProtocols: ["telnet"],
-  preferredProtocol: "telnet", // MOOs traditionally Telnet-only
+  supportedProtocols: ['telnet'],
+  preferredProtocol: 'telnet', // MOOs traditionally Telnet-only
 
   // Buffer limits
   maxInputLength: 1024, // Programming commands can be long
@@ -43,5 +43,5 @@ export const MOO_CONSTANTS: MOOConstants = {
   programmingAllowed: true, // Core feature of MOOs
   verbProgramming: true, // Verb definitions on objects
   maxVerbsPerObject: 100, // Reasonable verb limit
-  maxPropertiesPerObject: 200, // Object property limit
-} as const;
+  maxPropertiesPerObject: 200 // Object property limit
+} as const
