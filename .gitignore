@@ -29,3 +29,6 @@ results
 .turbo/
 .turbo/cookies/
 .turbo/daemon/
+
+# Ignore temporary commit message files
+*commit*.txt
