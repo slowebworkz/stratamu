@@ -1,8 +1,8 @@
 // Index file for game-specific constants
-export { MUD_CONSTANTS } from "./mudConstants";
-export { MUSH_CONSTANTS } from "./mushConstants";
-export { MOO_CONSTANTS } from "./mooConstants";
-export { MUCK_CONSTANTS } from "./muckConstants";
+export { MUD_CONSTANTS } from "./mud-constants";
+export { MUSH_CONSTANTS } from "./mush-constants";
+export { MOO_CONSTANTS } from "./moo-constants";
+export { MUCK_CONSTANTS } from "./muck-constants";
 
 // Re-export types
 export type {
@@ -12,4 +12,4 @@ export type {
   MUSHConstants,
   MOOConstants,
   MUCKConstants,
-} from "@/types/gameConstants";
+} from "@/types/game-constants";
