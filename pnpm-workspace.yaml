@@ -4,3 +4,6 @@ packages:
 
 ignoredBuiltDependencies:
   - unrs-resolver
+
+onlyBuiltDependencies:
+  - esbuild
