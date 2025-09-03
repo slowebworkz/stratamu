@@ -4,7 +4,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.json --outDir dist --declaration --emitDeclarationOnly false && find dist -type f ! \\( -name 'index.js' -o -name 'index.d.ts' -o -name 'telnet.js' -o -name 'telnet.d.ts' -o -name 'websockets.js' -o -name 'websockets.d.ts' \\) -delete",
+    "build": "tsc -p tsconfig.json --outDir dist --declaration --emitDeclarationOnly false",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix"
   }
