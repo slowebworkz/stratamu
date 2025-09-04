@@ -9,6 +9,7 @@ export interface TelnetServerOptions {
   config: Required<TelnetConfig>
   connectionManager: ConnectionManager
   idleTimeouts: IdleTimeoutManager
+  handlers: any
   emit: (event: string, ...args: any[]) => void
   setIdleTimeout: (clientId: string, ms: number) => void
   cleanupClient: (clientId: string) => void

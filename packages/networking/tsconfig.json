@@ -8,7 +8,7 @@
     "noEmit": false,
     "declaration": true,
     "module": "NodeNext",
-    "types": ["vite/client"],
+    "types": ["vite/client", "node"],
     "paths": {
       "@/types": ["types/index"],
       "@/shared": ["shared/index"],
@@ -22,5 +22,5 @@
       "@/utils/*": ["utils/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src/telnet.ts"]
 }

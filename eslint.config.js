@@ -1,8 +1,8 @@
-import globals from 'globals'
 import js from '@eslint/js'
-import tsEslint from 'typescript-eslint'
-import pluginReact from 'eslint-plugin-react'
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
+import pluginReact from 'eslint-plugin-react'
+import globals from 'globals'
+import tsEslint from 'typescript-eslint'
 
 export default tsEslint.config(
   {
