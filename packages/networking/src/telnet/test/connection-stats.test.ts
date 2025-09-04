@@ -1,12 +1,12 @@
-import { getConnectionInfo, getConnectionStats } from '../index'
 import * as net from 'node:net'
 import { describe, expect, it } from 'vitest'
+import { getConnectionInfo, getConnectionStats } from '../index'
 
 describe('connection-stats', () => {
   it('gets connection info', () => {
     const mockSocket = {
-      destroy: () => { },
-      end: () => { }
+      destroy: () => {},
+      end: () => {}
     } as unknown as net.Socket
     const cm = {
       getConnectionInfo: (id: string) => ({

@@ -1,5 +1,5 @@
-import { emitEvent, registerHandler } from '../index'
 import { describe, expect, it } from 'vitest'
+import { emitEvent, registerHandler } from '../index'
 
 describe('event-utils', () => {
   it('registers and emits events', () => {

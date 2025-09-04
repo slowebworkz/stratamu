@@ -1,5 +1,5 @@
-import { TelnetProtocolHandler } from './telnet-protocol-handler'
 import type * as net from 'node:net'
+import { TelnetProtocolHandler } from './telnet-protocol-handler'
 
 export function sendIAC(
   socket: net.Socket,

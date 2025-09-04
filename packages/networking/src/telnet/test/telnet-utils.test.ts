@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest'
 import {
   handleSubnegotiation,
   sendANSI,
@@ -5,7 +6,6 @@ import {
   sendIAC,
   setPrompt
 } from '../index'
-import { describe, expect, it } from 'vitest'
 
 describe('telnet-utils', () => {
   it('exports protocol utility functions', () => {

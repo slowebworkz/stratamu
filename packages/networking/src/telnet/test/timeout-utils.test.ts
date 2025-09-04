@@ -1,7 +1,7 @@
-import { IdleTimeoutManager } from '../../shared/index'
-import { setIdleTimeout } from '../index'
 import * as net from 'node:net'
 import { describe, expect, it } from 'vitest'
+import { IdleTimeoutManager } from '../../shared/index'
+import { setIdleTimeout } from '../index'
 
 describe('timeout-utils', () => {
   it('sets idle timeout and calls callback', async () => {
@@ -13,10 +13,10 @@ describe('timeout-utils', () => {
     }
     // Provide a mock net.Socket
     const mockSocket = {
-      destroy: () => { },
-      end: () => { }
+      destroy: () => {},
+      end: () => {}
     } as unknown as net.Socket
-    setIdleTimeout(idle, { getClient: () => mockSocket }, 'c1', 100, () => { })
+    setIdleTimeout(idle, { getClient: () => mockSocket }, 'c1', 100, () => {})
     expect(called).toBe(true)
   })
 })

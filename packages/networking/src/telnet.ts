@@ -1,20 +1,33 @@
-import { ConnectionManager } from './telnet/connection-manager'
+import { randomUUID } from 'node:crypto'
+import * as net from 'node:net'
 import { ClientStateManager } from './shared/client-state-manager'
 import { GroupManager } from './shared/group-manager'
 import { IdleTimeoutManager } from './shared/idle-timeout-manager'
-import { TelnetProtocolHandler } from './telnet/telnet-protocol-handler'
-import { addClientToGroup, broadcastToGroup, removeClientFromGroup } from './telnet/group-utils'
+import { ConnectionManager } from './telnet/connection-manager'
+import {
+  getConnectionInfo,
+  getConnectionStats
+} from './telnet/connection-stats'
 import { emitEvent, registerHandler } from './telnet/event-utils'
-import { getConnectionInfo, getConnectionStats } from './telnet/connection-stats'
-import { handleMessageWithMiddleware } from './telnet/message-middleware'
-import { handleSubnegotiation, sendANSI, sendColoredMessage, sendIAC, setPrompt } from './telnet/telnet-utils'
+import {
+  addClientToGroup,
+  broadcastToGroup,
+  removeClientFromGroup
+} from './telnet/group-utils'
 import { kickExcessConnections } from './telnet/kick-utils'
-import { setIdleTimeout } from './telnet/timeout-utils'
+import { handleMessageWithMiddleware } from './telnet/message-middleware'
 import type { TelnetEventMap } from './telnet/telnet-event-map'
+import { TelnetProtocolHandler } from './telnet/telnet-protocol-handler'
+import {
+  handleSubnegotiation,
+  sendANSI,
+  sendColoredMessage,
+  sendIAC,
+  setPrompt
+} from './telnet/telnet-utils'
+import { setIdleTimeout } from './telnet/timeout-utils'
 import type { ConnectionLimits } from './types/index'
 import { NetworkAdapter, TelnetConfig } from './types/index'
-import { randomUUID } from 'node:crypto'
-import * as net from 'node:net'
 
 export { TelnetConfig }
 
@@ -131,7 +144,7 @@ export class TelnetAdapter implements NetworkAdapter {
         console.error(`Socket error (${code}): ${message} [${clientId}]`)
         try {
           socket.destroy()
-        } catch { }
+        } catch {}
         this._cleanupClient(clientId)
         this._emit('disconnect', clientId)
       })
@@ -157,7 +170,7 @@ export class TelnetAdapter implements NetworkAdapter {
         } else {
           try {
             socket.destroy()
-          } catch { }
+          } catch {}
         }
         this._cleanupClient(clientId)
         this._emit('disconnect', clientId)

@@ -1,6 +1,6 @@
+import { describe, expect, it } from 'vitest'
 import { GroupManager } from '../../shared/index'
 import { addClientToGroup, removeClientFromGroup } from '../index'
-import { describe, expect, it } from 'vitest'
 
 describe('group-utils', () => {
   it('adds and removes clients from groups', () => {
