@@ -1,13 +1,16 @@
-import { describe, it, expect } from 'vitest'
-import { ConnectionManager } from '../connection-manager'
 import * as net from 'node:net'
+import { describe, expect, it } from 'vitest'
+import { ConnectionManager } from '../connection-manager'
 
 const limits = { maxConnections: 2, maxConnectionsPerIP: 1 }
 
 describe('ConnectionManager', () => {
   it('should add and remove clients', () => {
     const manager = new ConnectionManager(limits)
-    const fakeSocket = { remoteAddress: '127.0.0.1', destroySoon: () => { } } as net.Socket
+    const fakeSocket = {
+      remoteAddress: '127.0.0.1',
+      destroySoon: () => {}
+    } as net.Socket
     manager.addClient('client1', fakeSocket)
     expect(manager.getClient('client1')).toBe(fakeSocket)
     manager.removeClient('client1')
@@ -19,7 +22,10 @@ describe('ConnectionManager', () => {
       maxConnections: 1,
       maxConnectionsPerIP: 1
     })
-    const fakeSocket1 = { remoteAddress: '127.0.0.1', destroySoon: () => { } } as net.Socket
+    const fakeSocket1 = {
+      remoteAddress: '127.0.0.1',
+      destroySoon: () => {}
+    } as net.Socket
     manager.addClient('client1', fakeSocket1)
     expect(
       manager.canAcceptConnection(manager.getActiveConnections(), '127.0.0.2')
@@ -31,7 +37,10 @@ describe('ConnectionManager', () => {
       maxConnections: 2,
       maxConnectionsPerIP: 1
     })
-    const fakeSocket1 = { remoteAddress: '127.0.0.1', destroySoon: () => { } } as net.Socket
+    const fakeSocket1 = {
+      remoteAddress: '127.0.0.1',
+      destroySoon: () => {}
+    } as net.Socket
     manager.addClient('client1', fakeSocket1)
     expect(
       manager.canAcceptConnection(manager.getActiveConnections(), '127.0.0.1')
@@ -40,8 +49,14 @@ describe('ConnectionManager', () => {
 
   it('should return all clients', () => {
     const manager = new ConnectionManager(limits)
-    const fakeSocket1 = { remoteAddress: '127.0.0.1', destroySoon: () => { } } as net.Socket
-    const fakeSocket2 = { remoteAddress: '127.0.0.2', destroySoon: () => { } } as net.Socket
+    const fakeSocket1 = {
+      remoteAddress: '127.0.0.1',
+      destroySoon: () => {}
+    } as net.Socket
+    const fakeSocket2 = {
+      remoteAddress: '127.0.0.2',
+      destroySoon: () => {}
+    } as net.Socket
     manager.addClient('client1', fakeSocket1)
     manager.addClient('client2', fakeSocket2)
     const allClients = manager.getAllClients()
@@ -52,7 +67,11 @@ describe('ConnectionManager', () => {
 
   it('should return connection info', () => {
     const manager = new ConnectionManager(limits)
-    const fakeSocket = { remoteAddress: '127.0.0.1', remotePort: 1234, destroySoon: () => { } } as net.Socket
+    const fakeSocket = {
+      remoteAddress: '127.0.0.1',
+      remotePort: 1234,
+      destroySoon: () => {}
+    } as net.Socket
     manager.addClient('client1', fakeSocket)
     const info = manager.getConnectionInfo('client1')
     expect(info).toMatchObject({ ip: '127.0.0.1', port: 1234 })
@@ -62,8 +81,14 @@ describe('ConnectionManager', () => {
 
   it('should return connections by IP', () => {
     const manager = new ConnectionManager(limits)
-    const fakeSocket1 = { remoteAddress: '127.0.0.1', destroySoon: () => { } } as net.Socket
-    const fakeSocket2 = { remoteAddress: '127.0.0.2', destroySoon: () => { } } as net.Socket
+    const fakeSocket1 = {
+      remoteAddress: '127.0.0.1',
+      destroySoon: () => {}
+    } as net.Socket
+    const fakeSocket2 = {
+      remoteAddress: '127.0.0.2',
+      destroySoon: () => {}
+    } as net.Socket
     manager.addClient('client1', fakeSocket1)
     manager.addClient('client2', fakeSocket2)
     const byIP = manager.getConnectionsByIP()
@@ -73,7 +98,10 @@ describe('ConnectionManager', () => {
 
   it('should clear all clients and connections', () => {
     const manager = new ConnectionManager(limits)
-    const fakeSocket1 = { remoteAddress: '127.0.0.1', destroySoon: () => { } } as net.Socket
+    const fakeSocket1 = {
+      remoteAddress: '127.0.0.1',
+      destroySoon: () => {}
+    } as net.Socket
     manager.addClient('client1', fakeSocket1)
     manager.clear()
     expect(manager.getAllClients().size).toBe(0)

@@ -1,10 +1,10 @@
-import { describe, it, expect } from 'vitest'
+import { MUD_CONSTANTS } from '@/constants/mud-constants'
 import {
   createTelnetConfig,
   getGameConstantsValidationErrors,
   validateGameConstants
 } from '@/utils/config-factory'
-import { MUD_CONSTANTS } from '@/constants/mud-constants'
+import { describe, expect, it } from 'vitest'
 
 describe('createTelnetConfig', () => {
   it('should convert game constants to telnet config', () => {

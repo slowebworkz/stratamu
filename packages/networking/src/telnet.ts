@@ -1,9 +1,14 @@
-import { NetworkAdapter, TelnetConfig } from '@/types'
-import * as net from 'node:net'
-import { randomUUID } from 'node:crypto'
-import { ClientStateManager, IdleTimeoutManager, GroupManager } from '@/shared'
-import { ConnectionManager, TelnetProtocolHandler } from '@/telnet'
+import { ClientStateManager, GroupManager, IdleTimeoutManager } from '@/shared'
+import {
+  ConnectionManager,
+  TelnetProtocolHandler,
+  handleMessageWithMiddleware
+} from '@/telnet'
+import type { TelnetEventMap } from '@/telnet/telnet-event-map'
 import type { ConnectionLimits } from '@/types'
+import { NetworkAdapter, TelnetConfig } from '@/types'
+import { randomUUID } from 'node:crypto'
+import * as net from 'node:net'
 
 export { TelnetConfig }
 
@@ -18,9 +23,9 @@ export class TelnetAdapter implements NetworkAdapter {
   private idleTimeouts = new IdleTimeoutManager()
   private connectionManager: ConnectionManager
   private groupManager = new GroupManager()
-  private handlers: {
-    [event: string]: Array<(clientId: string, data?: any) => void>
-  } = {}
+  private handlers: Partial<{
+    [K in keyof TelnetEventMap]: Array<TelnetEventMap[K]>
+  }> = {}
   private server?: net.Server
   private middlewares: Array<
     (clientId: string, message: any, next: () => void) => void
@@ -147,7 +152,15 @@ export class TelnetAdapter implements NetworkAdapter {
         }
         this._emit('disconnect', clientId)
       })
-      this.server.close()
+      await new Promise<void>((resolve, reject) => {
+        this.server!.close((err?: Error) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve()
+          }
+        })
+      })
       this.server = undefined
       this.connectionManager.clear()
       this.clientStates.clear()
@@ -187,12 +200,12 @@ export class TelnetAdapter implements NetworkAdapter {
     )
   }
 
-  public on(
-    event: 'connect' | 'disconnect' | 'error' | 'message',
-    handler: (clientId: string, data?: any) => void
+  public on<K extends keyof TelnetEventMap>(
+    event: K,
+    handler: TelnetEventMap[K]
   ) {
     if (!this.handlers[event]) this.handlers[event] = []
-    this.handlers[event].push(handler)
+    ;(this.handlers[event] as Array<TelnetEventMap[K]>).push(handler)
   }
 
   public getClientState(clientId: string): Record<string, any> {
@@ -209,25 +222,13 @@ export class TelnetAdapter implements NetworkAdapter {
     this.middlewares.push(middleware)
   }
 
-  private _handleMessage(clientId: string, message: any) {
-    let index = 0
-    const next = (err?: Error) => {
-      if (err) {
-        this._emit('error', clientId, { message: err.message })
-        return
-      }
-      const mw = this.middlewares[index++]
-      if (mw) {
-        try {
-          mw(clientId, message, next)
-        } catch (err) {
-          next(err as Error)
-        }
-      } else {
-        this._emit('message', clientId, message)
-      }
-    }
-    next()
+  private async _handleMessage(clientId: string, message: any) {
+    await handleMessageWithMiddleware(
+      this.middlewares,
+      this._emit.bind(this),
+      clientId,
+      message
+    )
   }
 
   public negotiate?(clientId: string, option: string, value: any): void {
@@ -315,11 +316,16 @@ export class TelnetAdapter implements NetworkAdapter {
     this.groupManager.removeClientFromAllGroups(clientId)
   }
 
-  private _emit(event: string, clientId: string, data?: any) {
-    const handlers = this.handlers[event]
+  private _emit<K extends keyof TelnetEventMap>(
+    event: K,
+    ...args: Parameters<TelnetEventMap[K]>
+  ) {
+    const handlers = this.handlers[event] as
+      | Array<TelnetEventMap[K]>
+      | undefined
     if (handlers) {
       for (const handler of handlers) {
-        handler(clientId, data)
+        ;(handler as (...a: Parameters<TelnetEventMap[K]>) => void)(...args)
       }
     }
   }

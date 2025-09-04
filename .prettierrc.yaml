@@ -10,6 +10,6 @@ endOfLine: lf
 proseWrap: always
 quoteProps: as-needed
 jsxSingleQuote: false
-htmlWhitespaceSensitivity: css
-yamlBracketSpacing: true
-yamlKeySort: false
+
+plugins:
+  - prettier-plugin-organize-imports

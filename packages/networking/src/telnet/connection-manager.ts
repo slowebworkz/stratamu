@@ -1,5 +1,5 @@
-import * as net from 'node:net'
 import { ConnectionLimits } from '@/types'
+import * as net from 'node:net'
 
 export { ConnectionLimits }
 
@@ -8,7 +8,7 @@ export class ConnectionManager {
   private connectionCounts = new Map<string, number>()
   private connectionTimes = new Map<string, Date>()
 
-  constructor(private limits: ConnectionLimits) { }
+  constructor(private limits: ConnectionLimits) {}
 
   canAcceptConnection(
     totalConnections: number,
