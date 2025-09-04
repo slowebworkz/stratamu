@@ -1,5 +1,5 @@
 import * as net from 'node:net'
-import { ConnectionLimits } from '@/types'
+import { ConnectionLimits } from '../types'
 
 export { ConnectionLimits }
 

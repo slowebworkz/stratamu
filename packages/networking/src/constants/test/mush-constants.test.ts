@@ -1,0 +1,12 @@
+import { describe, it, expect } from 'vitest'
+import { MUSH_CONSTANTS } from '../mush-constants'
+
+describe('MUSH_CONSTANTS', () => {
+  it('should have gameType as MUSH', () => {
+    expect(MUSH_CONSTANTS.gameType).toBe('MUSH')
+  })
+
+  it('should have maxConnections as a number', () => {
+    expect(typeof MUSH_CONSTANTS.maxConnections).toBe('number')
+  })
+})
