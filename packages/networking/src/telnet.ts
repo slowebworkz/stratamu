@@ -1,12 +1,18 @@
-import { ClientStateManager, GroupManager, IdleTimeoutManager } from '@/shared'
-import {
-  ConnectionManager,
-  TelnetProtocolHandler,
-  handleMessageWithMiddleware
-} from '@/telnet'
-import type { TelnetEventMap } from '@/telnet/telnet-event-map'
-import type { ConnectionLimits } from '@/types'
-import { NetworkAdapter, TelnetConfig } from '@/types'
+import { ConnectionManager } from './telnet/connection-manager'
+import { ClientStateManager } from './shared/client-state-manager'
+import { GroupManager } from './shared/group-manager'
+import { IdleTimeoutManager } from './shared/idle-timeout-manager'
+import { TelnetProtocolHandler } from './telnet/telnet-protocol-handler'
+import { addClientToGroup, broadcastToGroup, removeClientFromGroup } from './telnet/group-utils'
+import { emitEvent, registerHandler } from './telnet/event-utils'
+import { getConnectionInfo, getConnectionStats } from './telnet/connection-stats'
+import { handleMessageWithMiddleware } from './telnet/message-middleware'
+import { handleSubnegotiation, sendANSI, sendColoredMessage, sendIAC, setPrompt } from './telnet/telnet-utils'
+import { kickExcessConnections } from './telnet/kick-utils'
+import { setIdleTimeout } from './telnet/timeout-utils'
+import type { TelnetEventMap } from './telnet/telnet-event-map'
+import type { ConnectionLimits } from './types/index'
+import { NetworkAdapter, TelnetConfig } from './types/index'
 import { randomUUID } from 'node:crypto'
 import * as net from 'node:net'
 
@@ -96,7 +102,11 @@ export class TelnetAdapter implements NetworkAdapter {
         this.idleTimeouts.set(clientId, this.config.idleTimeoutMs, () => {
           const socket = this.connectionManager.getClient(clientId)
           if (socket) {
-            socket.end('Idle timeout.\r\n')
+            try {
+              socket.end('Idle timeout.\r\n')
+            } catch {
+              socket.destroy()
+            }
             this._cleanupClient(clientId)
             this._emit('disconnect', clientId)
           }
@@ -110,27 +120,20 @@ export class TelnetAdapter implements NetworkAdapter {
 
       // Handle client disconnect
       socket.on('close', () => {
+        // socket already closed
         this._cleanupClient(clientId)
-        console.info(
-          `Client ${clientId} disconnected. Removing from all groups.`
-        )
         this._emit('disconnect', clientId)
       })
 
       // Handle errors
       socket.on('error', (err) => {
         const { message, code } = err as any
-        if (code === 'ECONNRESET') {
-          // Log or handle connection reset
-          console.warn(`Connection reset by peer: ${clientId}`)
-        } else if (code === 'EPIPE') {
-          // Log or handle broken pipe
-          console.warn(`Broken pipe: ${clientId}`)
-        } else {
-          // Other errors
-          console.error(`Socket error (${code}): ${message} [${clientId}]`)
-        }
-        this._emit('error', clientId, { message, code })
+        console.error(`Socket error (${code}): ${message} [${clientId}]`)
+        try {
+          socket.destroy()
+        } catch { }
+        this._cleanupClient(clientId)
+        this._emit('disconnect', clientId)
       })
     })
 
@@ -146,10 +149,17 @@ export class TelnetAdapter implements NetworkAdapter {
     if (this.server) {
       this.connectionManager.getAllClients().forEach((socket, clientId) => {
         if (graceful) {
-          socket.end('Server shutting down.\r\n')
+          try {
+            socket.end('Server shutting down.\r\n')
+          } catch {
+            socket.destroy()
+          }
         } else {
-          socket.destroy()
+          try {
+            socket.destroy()
+          } catch { }
         }
+        this._cleanupClient(clientId)
         this._emit('disconnect', clientId)
       })
       await new Promise<void>((resolve, reject) => {
@@ -177,19 +187,18 @@ export class TelnetAdapter implements NetworkAdapter {
     }
   }
 
-  // Add a client to a group
+  // Replace group management methods
   public addClientToGroup(clientId: string, groupId: string): void {
-    this.groupManager.addClientToGroup(clientId, groupId)
+    addClientToGroup(this.groupManager, clientId, groupId)
   }
 
-  // Remove a client from a group
   public removeClientFromGroup(clientId: string, groupId: string): void {
-    this.groupManager.removeClientFromGroup(clientId, groupId)
+    removeClientFromGroup(this.groupManager, clientId, groupId)
   }
 
-  // Broadcast to a group
   public broadcast(message: string | object, groupId?: string) {
-    this.groupManager.broadcast(
+    broadcastToGroup(
+      this.groupManager,
       this.connectionManager.getAllClients(),
       message,
       (socket: net.Socket, msg: string | object) => {
@@ -200,12 +209,93 @@ export class TelnetAdapter implements NetworkAdapter {
     )
   }
 
+  // Replace event handling methods
   public on<K extends keyof TelnetEventMap>(
     event: K,
     handler: TelnetEventMap[K]
   ) {
-    if (!this.handlers[event]) this.handlers[event] = []
-    ;(this.handlers[event] as Array<TelnetEventMap[K]>).push(handler)
+    registerHandler(this.handlers, event, handler)
+  }
+
+  private _emit<K extends keyof TelnetEventMap>(
+    event: K,
+    ...args: Parameters<TelnetEventMap[K]>
+  ) {
+    emitEvent(this.handlers, event, ...args)
+  }
+
+  // Replace Telnet protocol utilities
+  public sendIAC(clientId: string, command: number, option?: number): void {
+    const socket = this.connectionManager.getClient(clientId)
+    if (!socket) return
+    sendIAC(socket, command, option)
+  }
+
+  public sendANSI(clientId: string, ansiSequence: string): void {
+    const socket = this.connectionManager.getClient(clientId)
+    if (!socket) return
+    sendANSI(socket, ansiSequence)
+  }
+
+  public setPrompt(clientId: string, prompt: string): void {
+    const socket = this.connectionManager.getClient(clientId)
+    if (!socket) return
+    setPrompt(socket, prompt)
+  }
+
+  public handleSubnegotiation(clientId: string, type: string, data: any): void {
+    const socket = this.connectionManager.getClient(clientId)
+    if (!socket) return
+    handleSubnegotiation(socket, clientId, type, data)
+  }
+
+  public sendColoredMessage(
+    clientId: string,
+    message: string,
+    color?: string
+  ): void {
+    const socket = this.connectionManager.getClient(clientId)
+    if (!socket) return
+    sendColoredMessage(socket, message, color)
+  }
+
+  // Replace idle timeout management
+  public setIdleTimeout(clientId: string, ms: number): void {
+    setIdleTimeout(
+      this.idleTimeouts,
+      this.connectionManager,
+      clientId,
+      ms,
+      (clientId, socket) => {
+        socket.end('Idle timeout.\r\n')
+        this._cleanupClient(clientId)
+        this._emit('disconnect', clientId)
+      }
+    )
+  }
+
+  // Replace connection info/stats
+  public getConnectionInfo(
+    clientId: string
+  ): { ip?: string; port?: number; connected: Date } | null {
+    return getConnectionInfo(this.connectionManager, clientId)
+  }
+
+  public getConnectionStats(): {
+    total: number
+    byIP: Map<string, number>
+    limits: ConnectionLimits
+    canAcceptNew: boolean
+  } {
+    return getConnectionStats({
+      getActiveConnections: this.connectionManager.getActiveConnections.bind(
+        this.connectionManager
+      ),
+      getConnectionsByIP: this.connectionManager.getConnectionsByIP.bind(
+        this.connectionManager
+      ),
+      getConnectionLimits: this.getConnectionLimits.bind(this)
+    })
   }
 
   public getClientState(clientId: string): Record<string, any> {
@@ -237,99 +327,6 @@ export class TelnetAdapter implements NetworkAdapter {
     TelnetProtocolHandler.negotiate(socket, option, value)
   }
 
-  // Telnet-specific public API
-  public sendIAC(clientId: string, command: number, option?: number): void {
-    const socket = this.connectionManager.getClient(clientId)
-    if (!socket) return
-    TelnetProtocolHandler.sendIAC(socket, command, option)
-  }
-
-  public sendANSI(clientId: string, ansiSequence: string): void {
-    const socket = this.connectionManager.getClient(clientId)
-    if (!socket) return
-    TelnetProtocolHandler.sendANSI(socket, ansiSequence)
-  }
-
-  public setPrompt(clientId: string, prompt: string): void {
-    const socket = this.connectionManager.getClient(clientId)
-    if (!socket) return
-    TelnetProtocolHandler.setPrompt(socket, prompt)
-  }
-
-  public handleSubnegotiation(clientId: string, type: string, data: any): void {
-    const socket = this.connectionManager.getClient(clientId)
-    if (!socket) return
-    TelnetProtocolHandler.handleSubnegotiation(socket, clientId, type, data)
-  }
-
-  public getSocket(clientId: string): net.Socket | undefined {
-    return this.connectionManager.getClient(clientId)
-  }
-
-  // Enhanced methods for MUD functionality
-  public sendColoredMessage(
-    clientId: string,
-    message: string,
-    color?: string
-  ): void {
-    const socket = this.connectionManager.getClient(clientId)
-    if (!socket) return
-    TelnetProtocolHandler.sendColoredMessage(socket, message, color)
-  }
-
-  public getConnectionInfo(
-    clientId: string
-  ): { ip?: string; port?: number; connected: Date } | null {
-    return this.connectionManager.getConnectionInfo(clientId)
-  }
-
-  public getActiveConnections(): number {
-    return this.connectionManager.getActiveConnections()
-  }
-
-  public getConnectionsByIP(): Map<string, number> {
-    return this.connectionManager.getConnectionsByIP()
-  }
-
-  public getAllClients(): Map<string, net.Socket> {
-    return this.connectionManager.getAllClients()
-  }
-
-  public setIdleTimeout(clientId: string, ms: number): void {
-    this.idleTimeouts.set(clientId, ms, () => {
-      const socket = this.connectionManager.getClient(clientId)
-      if (socket) {
-        socket.end('Idle timeout.\r\n')
-        this._cleanupClient(clientId)
-        this._emit('disconnect', clientId)
-      }
-    })
-  }
-
-  // Helper method to cleanup client resources
-  private _cleanupClient(clientId: string): void {
-    this.connectionManager.removeClient(clientId)
-    this.clientStates.delete(clientId)
-    this.idleTimeouts.clear(clientId)
-
-    // Remove from all groups
-    this.groupManager.removeClientFromAllGroups(clientId)
-  }
-
-  private _emit<K extends keyof TelnetEventMap>(
-    event: K,
-    ...args: Parameters<TelnetEventMap[K]>
-  ) {
-    const handlers = this.handlers[event] as
-      | Array<TelnetEventMap[K]>
-      | undefined
-    if (handlers) {
-      for (const handler of handlers) {
-        ;(handler as (...a: Parameters<TelnetEventMap[K]>) => void)(...args)
-      }
-    }
-  }
-
   // Traditional MUD-style connection management methods
   public getConnectionLimits(): ConnectionLimits {
     return {
@@ -345,55 +342,31 @@ export class TelnetAdapter implements NetworkAdapter {
     if (limits.maxConnectionsPerIP !== undefined) {
       this.config.maxConnectionsPerIP = limits.maxConnectionsPerIP
     }
-
-    // Update the connection manager with new limits
-    this.connectionManager = new ConnectionManager({
+    this.connectionManager.updateLimits({
       maxConnections: this.config.maxConnections,
       maxConnectionsPerIP: this.config.maxConnectionsPerIP
     })
   }
 
-  public getConnectionStats(): {
-    total: number
-    byIP: Map<string, number>
-    limits: ConnectionLimits
-    canAcceptNew: boolean
-  } {
-    const limits = this.getConnectionLimits()
-    const total = this.connectionManager.getActiveConnections()
-    const byIP = this.connectionManager.getConnectionsByIP()
-
-    return {
-      total,
-      byIP,
-      limits,
-      canAcceptNew: total < limits.maxConnections
-    }
+  public kickExcessConnections(): number {
+    const result = kickExcessConnections(
+      this.connectionManager.getAllClients(),
+      this.getConnectionStats(),
+      (clientId, socket) => {
+        this._cleanupClient(clientId)
+        this._emit('disconnect', clientId)
+      }
+    )
+    return result.kicked
   }
 
-  public kickExcessConnections(): number {
-    const stats = this.getConnectionStats()
-    let kicked = 0
+  // Helper method to cleanup client resources
+  private _cleanupClient(clientId: string): void {
+    this.connectionManager.removeClient(clientId)
+    this.clientStates.delete(clientId)
+    this.idleTimeouts.clear(clientId)
 
-    // Kick connections that exceed per-IP limits (traditional MUD behavior)
-    stats.byIP.forEach((count, ip) => {
-      if (count > stats.limits.maxConnectionsPerIP) {
-        const excess = count - stats.limits.maxConnectionsPerIP
-        const clientsFromIP = Array.from(
-          this.connectionManager.getAllClients().entries()
-        )
-          .filter(([_, socket]) => socket.remoteAddress === ip)
-          .slice(0, excess) // Keep older connections, kick newer ones
-
-        clientsFromIP.forEach(([clientId, socket]) => {
-          socket.end('Too many connections from your IP address.\r\n')
-          this._cleanupClient(clientId)
-          this._emit('disconnect', clientId)
-          kicked++
-        })
-      }
-    })
-
-    return kicked
+    // Remove from all groups
+    this.groupManager.removeClientFromAllGroups(clientId)
   }
 }

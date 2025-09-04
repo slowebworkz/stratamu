@@ -1,9 +1,9 @@
-import { MUD_CONSTANTS } from '@/constants/mud-constants'
+import { MUD_CONSTANTS } from '../../constants/mud-constants'
 import {
   createTelnetConfig,
   getGameConstantsValidationErrors,
   validateGameConstants
-} from '@/utils/config-factory'
+} from '../config-factory'
 import { describe, expect, it } from 'vitest'
 
 describe('createTelnetConfig', () => {

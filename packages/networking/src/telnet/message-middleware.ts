@@ -16,7 +16,16 @@ export async function handleMessageWithMiddleware(
   let index = 0
   const next = async (err?: Error) => {
     if (err) {
-      emit('error', clientId, { message: err.message })
+      // Emit a richer error object for debugging
+      const errorObj: Record<string, any> = {
+        message: err.message,
+        stack: err.stack
+      }
+      // Copy all enumerable properties from the error
+      for (const key of Object.keys(err)) {
+        errorObj[key] = (err as any)[key]
+      }
+      emit('error', clientId, errorObj)
       return
     }
     const mw = middlewares[index++]

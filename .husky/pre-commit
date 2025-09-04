@@ -1,1 +1,3 @@
-pnpm install
+pnpm prettier --write "packages/**/*.{ts,tsx,js,jsx,json,md}"
+pnpm lint
+pnpm vitest run

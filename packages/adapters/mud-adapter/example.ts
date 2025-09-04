@@ -1,8 +1,8 @@
 // Example showing how game adapters should configure TelnetAdapter
 // This demonstrates the architectural pattern you asked about
 
-import { TelnetAdapter } from '../../networking/src/telnet'
 import { MUD_CONSTANTS } from '../../networking/src/constants/mudConstants'
+import { TelnetAdapter } from '../../networking/src/telnet'
 import { createTelnetConfig } from '../../networking/src/utils/configFactory'
 
 /**

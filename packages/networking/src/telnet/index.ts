@@ -1,5 +1,11 @@
 // telnet/index.ts - Export telnet-specific components
 export * from './connection-manager'
+export * from './connection-stats'
+export * from './event-utils'
+export * from './group-utils'
+export * from './kick-utils'
 export * from './message-middleware'
 export * from './telnet-event-map'
 export * from './telnet-protocol-handler'
+export * from './telnet-utils'
+export * from './timeout-utils'

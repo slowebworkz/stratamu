@@ -1,14 +1,14 @@
-import { ConnectionLimits } from '@/types'
+import type { ConnectionLimits } from '../types/index'
 import * as net from 'node:net'
 
-export { ConnectionLimits }
+
 
 export class ConnectionManager {
   private clients: Map<string, net.Socket> = new Map()
   private connectionCounts = new Map<string, number>()
   private connectionTimes = new Map<string, Date>()
 
-  constructor(private limits: ConnectionLimits) {}
+  constructor(private limits: ConnectionLimits) { }
 
   canAcceptConnection(
     totalConnections: number,
@@ -87,6 +87,10 @@ export class ConnectionManager {
 
   getConnectionsByIP(): Map<string, number> {
     return new Map(this.connectionCounts)
+  }
+
+  updateLimits(limits: ConnectionLimits): void {
+    this.limits = limits
   }
 
   clear(): void {

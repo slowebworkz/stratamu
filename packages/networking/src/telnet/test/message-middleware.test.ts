@@ -54,7 +54,11 @@ describe('handleMessageWithMiddleware', () => {
     const emit = vi.fn()
     await handleMessageWithMiddleware(middlewares, emit, 'c3', 'err')
     expect(calls).toEqual(['before-error'])
-    expect(emit).toHaveBeenCalledWith('error', 'c3', { message: 'fail' })
+    expect(emit).toHaveBeenCalledWith(
+      'error',
+      'c3',
+      expect.objectContaining({ message: 'fail' })
+    )
   })
 
   it('handles thrown errors in middleware', async () => {
@@ -72,7 +76,11 @@ describe('handleMessageWithMiddleware', () => {
     const emit = vi.fn()
     await handleMessageWithMiddleware(middlewares, emit, 'c4', 'throw')
     expect(calls).toEqual(['throwing'])
-    expect(emit).toHaveBeenCalledWith('error', 'c4', { message: 'boom' })
+    expect(emit).toHaveBeenCalledWith(
+      'error',
+      'c4',
+      expect.objectContaining({ message: 'boom' })
+    )
   })
 
   it('emits message if no middlewares', async () => {
