@@ -1,14 +1,10 @@
 {
-  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
     "baseUrl": "src",
-    "moduleResolution": "NodeNext",
     "noEmit": false,
     "declaration": true,
-    "module": "NodeNext",
-    "types": ["vite/client", "node"],
     "paths": {
       "@/types": ["types/index"],
       "@/shared": ["shared/index"],
@@ -22,5 +18,6 @@
       "@/utils/*": ["utils/*"]
     }
   },
-  "include": ["src/telnet.ts"]
+  "exclude": ["vite.config.ts", "dist", "node_modules"],
+  "includes": ["src/**/*.ts"]
 }

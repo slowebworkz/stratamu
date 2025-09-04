@@ -1,13 +1,21 @@
 {
+  "exports": {
+    ".": {
+      "import": "./dist/telnet.js",
+      "require": "./dist/telnet.js"
+    }
+  },
   "name": "@stratamu/networking",
   "version": "0.1.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.json --outDir dist --declaration --emitDeclarationOnly false",
+    "clean": "rm -rf dist",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build": "pnpm run clean && pnpm run build:esm",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
-    "test": "vitest --watch"
+    "test": "tsc --noEmit -p tsconfig.vitest.json && vitest --watch"
   },
   "devDependencies": {
     "vite": "^7.1.4",

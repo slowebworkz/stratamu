@@ -1,4 +1,4 @@
-import type { TelnetEventMap } from '@/telnet/telnet-event-map'
+import type { TelnetEventMap } from './telnet-event-map'
 
 export type TelnetHandlers = Partial<{
   [K in keyof TelnetEventMap]: Array<TelnetEventMap[K]>

@@ -1,5 +1,5 @@
 // Traditional MUSH constants based on PennMUSH, TinyMUSH, and MUX codebases
-import type { MUSHConstants } from '@/types/game-constants'
+import type { MUSHConstants } from '../types/game-constants'
 
 export const MUSH_CONSTANTS: MUSHConstants = {
   gameType: 'MUSH',
