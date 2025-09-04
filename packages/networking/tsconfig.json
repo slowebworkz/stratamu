@@ -4,9 +4,11 @@
     "outDir": "dist",
     "rootDir": "src",
     "baseUrl": "src",
-    "moduleResolution": "node",
+    "moduleResolution": "NodeNext",
     "noEmit": false,
     "declaration": true,
+    "module": "NodeNext",
+    "types": ["vite/client"],
     "paths": {
       "@/types": ["types/index"],
       "@/shared": ["shared/index"],

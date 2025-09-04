@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto'
 import * as net from 'node:net'
 import { ClientStateManager } from './shared/client-state-manager'
 import { GroupManager } from './shared/group-manager'
@@ -16,6 +15,7 @@ import {
 } from './telnet/group-utils'
 import { kickExcessConnections } from './telnet/kick-utils'
 import { handleMessageWithMiddleware } from './telnet/message-middleware'
+import { createTelnetServer } from './telnet/server-utils'
 import type { TelnetEventMap } from './telnet/telnet-event-map'
 import { TelnetProtocolHandler } from './telnet/telnet-protocol-handler'
 import {
@@ -77,78 +77,19 @@ export class TelnetAdapter implements NetworkAdapter {
       maxConnectionsPerIP: this.config.maxConnectionsPerIP
     })
 
-    this.server = net.createServer((socket) => {
-      // Generate stable client ID with UUID for session tracking
-      const { remoteAddress, remotePort } = socket
-      const clientId = `${remoteAddress ?? 'unknown'}:${remotePort ?? '0'}:${randomUUID()}`
-
-      // Rate limiting using ConnectionManager
-      if (
-        !this.connectionManager.canAcceptConnection(
-          this.connectionManager.getActiveConnections(),
-          remoteAddress
-        )
-      ) {
-        if (
-          this.connectionManager.getActiveConnections() >=
-          this.config.maxConnections
-        ) {
-          socket.end('Server is full. Please try again later.\r\n')
-        } else {
-          socket.end(
-            'Too many connections from your IP. Please try again later.\r\n'
-          )
-        }
-        return
-      }
-
-      this.connectionManager.addClient(clientId, socket)
-      this._emit('connect', clientId)
-      this.setIdleTimeout(clientId, this.config.idleTimeoutMs)
-
-      // Telnet negotiation using protocol handler
-      TelnetProtocolHandler.sendInitialNegotiation(socket)
-
-      // Handle incoming data
-      socket.on('data', (data) => {
-        // Refresh idle timeout on activity (IdleTimeoutManager.set() auto-clears existing timeout)
-        this.idleTimeouts.set(clientId, this.config.idleTimeoutMs, () => {
-          const socket = this.connectionManager.getClient(clientId)
-          if (socket) {
-            try {
-              socket.end('Idle timeout.\r\n')
-            } catch {
-              socket.destroy()
-            }
-            this._cleanupClient(clientId)
-            this._emit('disconnect', clientId)
-          }
-        })
-
-        const message = TelnetProtocolHandler.parseTelnetData(data)
-        if (message.trim().length > 0) {
-          this._handleMessage(clientId, message.trim())
-        }
-      })
-
-      // Handle client disconnect
-      socket.on('close', () => {
-        // socket already closed
-        this._cleanupClient(clientId)
-        this._emit('disconnect', clientId)
-      })
-
-      // Handle errors
-      socket.on('error', (err) => {
-        const { message, code } = err as any
-        console.error(`Socket error (${code}): ${message} [${clientId}]`)
-        try {
-          socket.destroy()
-        } catch {}
-        this._cleanupClient(clientId)
-        this._emit('disconnect', clientId)
-      })
-    })
+    this.server = createTelnetServer(
+      {
+        config: this.config,
+        connectionManager: this.connectionManager,
+        idleTimeouts: this.idleTimeouts,
+        handlers: this.handlers,
+        emit: this._emit.bind(this),
+        setIdleTimeout: this.setIdleTimeout.bind(this),
+        cleanupClient: this._cleanupClient.bind(this)
+      },
+      TelnetProtocolHandler,
+      this._handleMessage.bind(this)
+    )
 
     // Listen on configured port with proper error handling
     await new Promise<void>((resolve, reject) => {
