@@ -1,5 +1,5 @@
-import type * as net from 'node:net'
 import { GroupManager } from '@/shared'
+import type * as net from 'node:net'
 
 export function addClientToGroup(
   groupManager: GroupManager,
