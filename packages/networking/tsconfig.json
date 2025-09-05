@@ -1,10 +1,14 @@
 {
   "compilerOptions": {
+    "target": "es2015",
+    "downlevelIteration": true,
     "outDir": "dist",
     "rootDir": "src",
     "baseUrl": "src",
     "noEmit": false,
     "declaration": true,
+    "moduleResolution": "NodeNext",
+    "module": "NodeNext",
     "paths": {
       "@/types": ["types/index"],
       "@/shared": ["shared/index"],

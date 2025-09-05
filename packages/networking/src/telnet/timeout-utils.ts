@@ -1,5 +1,5 @@
 import type * as net from 'node:net'
-import { IdleTimeoutManager } from '../shared'
+import { IdleTimeoutManager } from '@/shared'
 
 export function setIdleTimeout(
   idleTimeouts: IdleTimeoutManager,

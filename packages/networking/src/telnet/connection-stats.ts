@@ -1,5 +1,6 @@
 import type * as net from 'node:net'
-import type { ConnectionLimits } from '../types'
+// Update the import path to the correct location if '../types' does not exist
+import type { ConnectionLimits } from '@/types'
 
 export function getConnectionInfo(
   connectionManager: {

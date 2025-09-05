@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import * as net from 'node:net'
 import type { IdleTimeoutManager } from '../shared/idle-timeout-manager'
-import type { TelnetConfig } from '../types'
+import type { TelnetConfig } from '@/types'
 import type { ConnectionManager } from './connection-manager'
 import { TelnetProtocolHandler } from './telnet-protocol-handler'
 
