@@ -2,7 +2,7 @@
 
 // Robust regex for matching ANSI escape codes
 // eslint-disable-next-line no-control-regex
-export const ANSI_ESCAPE_REGEX = /\x1b\[[0-9;]*m/g;
+export const ANSI_ESCAPE_REGEX = /\x1b\[[0-9;]*m/g
 
 export function stripAnsi(text: string): string {
   return text.replace(ANSI_ESCAPE_REGEX, '')
