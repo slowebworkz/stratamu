@@ -8,7 +8,11 @@ export class PresentationLayer {
   /**
    * Delegate to CapabilitiesManager to initialize filters/capabilities for a client.
    */
-  initializeClient(clientId: string, dataStream?: any, negotiationData?: any) {
+  initializeClient(
+    clientId: string,
+    dataStream?: unknown,
+    negotiationData?: unknown
+  ) {
     this.capabilitiesManager.set(clientId, dataStream, negotiationData)
   }
 
@@ -29,7 +33,11 @@ export class PresentationLayer {
   /**
    * Process data for a client using the stored filter queue.
    */
-  process(clientId: string, data: string, client?: any): string {
+  process(
+    clientId: string,
+    data: string,
+    client?: import('@stratamu/types').BaseClient
+  ): string {
     const capabilities =
       this.capabilitiesManager.get(clientId) || client?.capabilities || {}
     const clientObj = { ...client, capabilities }

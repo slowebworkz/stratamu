@@ -1,5 +1,5 @@
 // Traditional MUD constants based on CircleMUD, DikuMUD, and ROM codebases
-import type { MUDConstants } from '../types/game-constants'
+import type { MUDConstants } from '@/types/game-constants'
 
 export const MUD_CONSTANTS: MUDConstants = {
   gameType: 'MUD',

@@ -4,12 +4,15 @@
     "target": "es2015",
     "downlevelIteration": true,
     "outDir": "dist",
-    "rootDir": "src",
+    // "rootDir": "src",
     "baseUrl": "src",
     "noEmit": false,
     "declaration": true,
     "moduleResolution": "NodeNext",
-    "module": "NodeNext"
+    "module": "NodeNext",
+    "paths": {
+      "@stratamu/types": ["../../types/index"]
+    }
   },
   "exclude": ["vite.config.ts", "dist", "node_modules"],
   "include": ["src/**/*.ts"]

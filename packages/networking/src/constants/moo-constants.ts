@@ -1,5 +1,5 @@
 // MOO constants based on LambdaMOO and other MOO servers
-import type { MOOConstants } from '../types/game-constants'
+import type { MOOConstants } from '@/types/game-constants'
 
 export const MOO_CONSTANTS: MOOConstants = {
   gameType: 'MOO',

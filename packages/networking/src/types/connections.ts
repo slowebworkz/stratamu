@@ -1,5 +1,7 @@
 // connections.ts - Connection management interfaces
 
+import type { PartialDeep, ReadonlyDeep } from 'type-fest'
+
 export interface ConnectionLimits {
   maxConnections: number
   maxConnectionsPerIP: number
@@ -14,7 +16,7 @@ export interface ConnectionInfo {
 export interface ClientInfo {
   clientId: string
   connectionInfo: ConnectionInfo
-  state: Record<string, any>
+  state: PartialDeep<Record<string, any>>
   groups: string[]
 }
 
@@ -28,8 +30,8 @@ export interface ConnectionStats {
   newestConnection?: Date
 }
 
-// Traditional MUD connection policies
-export interface ConnectionPolicy {
+// Traditional MUD connection policies (immutable)
+export type ConnectionPolicy = ReadonlyDeep<{
   maxConnections: number
   maxConnectionsPerIP: number
   maxGuestConnections?: number
@@ -38,4 +40,4 @@ export interface ConnectionPolicy {
   connectTimeoutMs?: number
   allowSiteban?: boolean
   requireDNSLookup?: boolean
-}
+}>

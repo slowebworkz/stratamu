@@ -4,6 +4,10 @@
     "noEmit": true,
     "target": "es2017",
     "downlevelIteration": true,
-    "types": ["node"]
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@stratamu/types": ["packages/types/index"]
+    }
   }
 }

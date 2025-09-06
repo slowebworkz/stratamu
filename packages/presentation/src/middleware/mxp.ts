@@ -1,9 +1,24 @@
-// MXP filter stub
+import type { BaseClient } from '@stratamu/types'
+// MXP filter utility
+// MXP uses <TAG> markup, similar to HTML/XML, for clickable links, color, etc.
+// For now, we strip MXP tags for unsupported clients and provide a hook for handling tags.
+
+// Regex to match MXP tags (e.g., <SEND>, <COLOR>, etc.)
+export const MXP_TAG_REGEX = /<[^>]+>/g
+
+export function stripMxp(text: string): string {
+  return text.replace(MXP_TAG_REGEX, '')
+}
+
 export function mxpFilter(
-  client: any,
+  client: BaseClient,
   text: string,
   next: (text: string) => string
 ): string {
-  // TODO: Implement MXP encoding/stripping
+  if (client.capabilities?.mxp === false) {
+    return next(stripMxp(text))
+  }
+  // Optionally, handle MXP tags here for supported clients
+  // Example: parse and sanitize tags, or convert to HTML for web clients
   return next(text)
 }

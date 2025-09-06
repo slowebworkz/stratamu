@@ -5,19 +5,15 @@ import {
   puebloFilter,
   utf8Filter
 } from './middleware/index'
-import { OutputFilter } from './middleware/outputFilter'
+import {
+  ClientCapabilities,
+  FILTER_NAMES,
+  FilterName,
+  OutputFilter
+} from './types'
 
-// List of supported filter names
-export const FILTER_NAMES = ['ansi', 'pueblo', 'mxp', 'msdp', 'utf8'] as const
-
-export type FilterName = (typeof FILTER_NAMES)[number]
-
-export type ClientCapabilities = Partial<Record<FilterName, boolean>> & {
-  [key: string]: any
-}
-
-// Map capability keys to their corresponding filters
-const capabilityFilterMap: Record<string, OutputFilter> = {
+// Capability → Filter mapping
+const capabilityFilterMap: Record<FilterName, OutputFilter> = {
   ansi: ansiFilter,
   pueblo: puebloFilter,
   mxp: mxpFilter,
@@ -26,14 +22,13 @@ const capabilityFilterMap: Record<string, OutputFilter> = {
 }
 
 /**
- * Utility to detect capabilities from initial negotiation data.
+ * Detect client capabilities from initial negotiation data.
  * Should only be called at connection/handshake time.
  */
 export function detectCapabilitiesFromData(
-  negotiationData: any
+  negotiationData: unknown
 ): ClientCapabilities {
-  // TODO: Implement real detection logic based on negotiationData
-  // Example: return { ansi: true, pueblo: false, mxp: false, msdp: false, utf8: true }
+  // TODO: Replace with real detection logic
   return { ansi: true }
 }
 
@@ -41,71 +36,65 @@ export function detectCapabilitiesFromData(
  * CapabilitiesManager: manages detection, explicit setting, mapping to filters, and retrieval of client filter queues.
  */
 export class CapabilitiesManager {
-  private capabilities: Map<string, ClientCapabilities> = new Map()
-  private filterQueues: Map<string, OutputFilter[]> = new Map()
+  private readonly capabilities = new Map<string, ClientCapabilities>()
+  private readonly filterQueues = new Map<string, OutputFilter[]>()
 
   /**
-   * Extract explicit capabilities from a layered data stream (game adapter or protocol layer).
-   * This is a stub for demonstration; real implementation would parse the stream.
+   * Extract explicit capabilities from a layered data stream.
+   * Stub: Replace with protocol-specific logic.
    */
-  extractExplicitCapabilities(dataStream: any): ClientCapabilities | undefined {
-    // TODO: Implement extraction logic based on your protocol/data structure
-    // Example: return dataStream.capabilities || undefined;
+  extractExplicitCapabilities(
+    dataStream: unknown
+  ): ClientCapabilities | undefined {
+    // Example: return (dataStream as { capabilities?: ClientCapabilities })?.capabilities
     return undefined
   }
 
   /**
    * Initialize or update capabilities and filter queue for a client.
-   * @param clientId Unique identifier for the client/session
-   * @param dataStream The incoming data stream (may contain explicit capabilities)
-   * @param negotiationData Data to use for detection if explicit not provided (optional)
    */
-  set(clientId: string, dataStream?: any, negotiationData?: any) {
-    // a) Find explicit capabilities in the data stream
+  set(clientId: string, dataStream?: unknown, negotiationData?: unknown): void {
     const explicit = this.extractExplicitCapabilities(dataStream)
-    // b) Run detection if explicit not found
-    const caps = explicit || detectCapabilitiesFromData(negotiationData)
+    const detected = detectCapabilitiesFromData(negotiationData)
+
+    // Merge (explicit takes precedence)
+    const caps: ClientCapabilities = { ...detected, ...explicit }
     this.capabilities.set(clientId, caps)
-    // c) Determine which filters to use for this client
-    const queue: OutputFilter[] = []
-    for (const [key, value] of Object.entries(caps)) {
-      if (value && capabilityFilterMap[key]) {
-        queue.push(capabilityFilterMap[key])
-      }
-    }
-    // d) Store the filter queue
+
+    // Build filter queue
+    const queue: OutputFilter[] = FILTER_NAMES.flatMap((name) =>
+      caps[name] ? [capabilityFilterMap[name]] : []
+    )
+
     this.filterQueues.set(clientId, queue)
   }
 
   /**
    * Get the filter queue for a client.
-   * @param clientId Unique identifier for the client/session
    */
   getFilterQueue(clientId: string): OutputFilter[] {
-    return this.filterQueues.get(clientId) || []
+    return this.filterQueues.get(clientId) ?? []
   }
 
   /**
    * Get capabilities for a client.
-   * @param clientId Unique identifier for the client/session
    */
   get(clientId: string): ClientCapabilities | undefined {
     return this.capabilities.get(clientId)
   }
 
   /**
-   * Remove capabilities and filter queue for a client (e.g., on disconnect).
-   * @param clientId Unique identifier for the client/session
+   * Remove capabilities and filter queue for a client.
    */
-  clear(clientId: string) {
+  clear(clientId: string): void {
     this.capabilities.delete(clientId)
     this.filterQueues.delete(clientId)
   }
 
   /**
-   * Clear all capabilities and filter queues (e.g., on server shutdown).
+   * Clear all capabilities and filter queues (e.g., on shutdown).
    */
-  clearAll() {
+  clearAll(): void {
     this.capabilities.clear()
     this.filterQueues.clear()
   }
