@@ -35,6 +35,8 @@
   "packageManager": "pnpm@10.14.0",
   "type": "module",
   "dependencies": {
-    "type-fest": "^4.41.0"
+    "type-fest": "^4.41.0",
+    "vite": "^7.1.4",
+    "vite-tsconfig-paths": "^5.1.4"
   }
 }

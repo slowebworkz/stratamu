@@ -16,9 +16,5 @@
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "test": "tsc --noEmit -p tsconfig.vitest.json && vitest --watch"
-  },
-  "devDependencies": {
-    "vite": "^7.1.4",
-    "vite-tsconfig-paths": "^5.1.4"
   }
 }
