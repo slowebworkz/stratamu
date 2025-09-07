@@ -1,48 +1,31 @@
-// UTF-8 filter utility for MUDs, MUSHes, etc.
-// - For legacy clients (no UTF-8), preserve as much as possible: map diacritics to ASCII, replace other non-ASCII with '?'.
-// - For modern clients, pass through unchanged.
+import type { OutputPipeline } from '@/output-pipeline'
+import type { BaseClient } from '@stratamu/types'
 
-/**
- * Replace non-ASCII/control characters with '?' for legacy clients.
- * - Only accepts strings.
- * - Leaves ASCII printable characters intact (0x20–0x7E).
- * - Control characters (0x00–0x1F, 0x7F) are replaced with '?'.
- */
-export function replaceControlChars(text: string): string {
+// Remove diacritics (e.g., á -> a) and replace remaining non-ASCII/control chars with '?'.
+const stripDiacriticsAndNonAscii = (text: string): string => {
+  const normalized = text.normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
   const chars: string[] = []
-  for (const char of text) {
-    const code = char.charCodeAt(0)
-    // Printable ASCII: 0x200x7E
-    chars.push(code >= 0x20 && code <= 0x7e ? char : '?')
+  for (let i = 0; i < normalized.length; i++) {
+    const code = normalized.charCodeAt(i)
+    chars.push(code >= 0x20 && code <= 0x7e ? normalized[i] : '?')
   }
   return chars.join('')
 }
 
-/**
- * Remove diacritics (e.g., á -> a) and replace remaining non-ASCII with '?'.
- * Useful for legacy MUD/MUSH clients that only support ASCII.
- */
-export function stripDiacriticsAndNonAscii(text: string): string {
-  // Normalize to NFD (decompose), remove diacritics, then filter to ASCII using replaceControlChars
-  const noDiacritics = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-  return replaceControlChars(noDiacritics)
-}
+const utf8PipelineCache = new Map<boolean, OutputPipeline>()
+const buildUtf8Pipeline = (supportsUtf8: boolean): OutputPipeline =>
+  supportsUtf8 ? (text) => text : stripDiacriticsAndNonAscii
 
-interface Client {
-  capabilities?: { utf8?: boolean }
-}
-
-/**
- * UTF-8 filter for output pipeline.
- * - If client does not support UTF-8, strip diacritics and replace non-ASCII.
- * - Otherwise, pass through unchanged.
- */
-export function utf8Filter(
-  client: Client,
-  text: string,
-  next: (text: string) => string
-): string {
+export const getUtf8Pipeline = (client: BaseClient): OutputPipeline => {
   const supportsUtf8 = client.capabilities?.utf8 ?? true
-  if (!supportsUtf8) return next(stripDiacriticsAndNonAscii(text))
-  return next(text)
+  if (!utf8PipelineCache.has(supportsUtf8)) {
+    utf8PipelineCache.set(supportsUtf8, buildUtf8Pipeline(supportsUtf8))
+  }
+  return utf8PipelineCache.get(supportsUtf8)!
 }
+
+export const utf8Filter = (
+  client: BaseClient,
+  text: string,
+  next: OutputPipeline
+): string => next(getUtf8Pipeline(client)(text))

@@ -11,7 +11,9 @@
     "moduleResolution": "NodeNext",
     "module": "NodeNext",
     "paths": {
-      "@stratamu/types": ["../../types/index"]
+      "@stratamu/types": ["../../types/index"],
+      "@/*": ["./*"],
+      "@/middleware/*": ["middleware/*"]
     }
   },
   "exclude": ["vite.config.ts", "dist", "node_modules", "src/**/*.test.ts"],

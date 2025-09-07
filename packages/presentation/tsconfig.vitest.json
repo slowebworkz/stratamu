@@ -2,7 +2,13 @@
   "compilerOptions": {
     "types": ["vitest", "vite/client", "node"],
     "moduleResolution": "NodeNext",
-    "module": "NodeNext"
+    "module": "NodeNext",
+    "baseUrl": "src",
+    "paths": {
+      "@stratamu/types": ["../../types/index"],
+      "@/*": ["./*"],
+      "@/middleware/*": ["middleware/*"]
+    }
   },
   "include": ["src/**/*.ts", "src/**/*.test.ts"]
 }

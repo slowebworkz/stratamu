@@ -2,7 +2,21 @@
   "compilerOptions": {
     "types": ["vitest", "vite/client", "node"],
     "moduleResolution": "NodeNext",
-    "module": "NodeNext"
+    "module": "NodeNext",
+    "baseUrl": "src",
+    "paths": {
+      "@stratamu/types": ["../../types/index"],
+      "@/types": ["types/index"],
+      "@/shared": ["shared/index"],
+      "@/telnet": ["telnet/index"],
+      "@/constants": ["constants/index"],
+      "@/utils": ["utils/index"],
+      "@/types/*": ["types/*"],
+      "@/shared/*": ["shared/*"],
+      "@/telnet/*": ["telnet/*"],
+      "@/constants/*": ["constants/*"],
+      "@/utils/*": ["utils/*"]
+    }
   },
   "include": ["src/**/*.ts", "src/**/*.test.ts"]
 }
