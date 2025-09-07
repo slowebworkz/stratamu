@@ -1,5 +1,6 @@
-// Shared types for stratamu monorepo
 import type { PartialDeep, Simplify, ValueOf } from 'type-fest'
+
+// Shared types for stratamu monorepo
 
 export type OutputFilter = (
   client: BaseClient,

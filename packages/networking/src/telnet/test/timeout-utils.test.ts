@@ -1,6 +1,6 @@
-import { IdleTimeoutManager } from '../../shared'
 import * as net from 'node:net'
 import { describe, expect, it } from 'vitest'
+import { IdleTimeoutManager } from '../../shared'
 import { setIdleTimeout } from '../index'
 
 describe('timeout-utils', () => {
