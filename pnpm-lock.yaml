@@ -68,9 +68,17 @@ importers:
 
   packages/core-engine: {}
 
-  packages/networking: {}
+  packages/networking:
+    dependencies:
+      '@stratamu/types':
+        specifier: workspace:*
+        version: link:../types
 
-  packages/presentation: {}
+  packages/presentation:
+    dependencies:
+      '@stratamu/types':
+        specifier: workspace:*
+        version: link:../types
 
   packages/types: {}
 

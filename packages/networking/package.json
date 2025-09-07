@@ -9,6 +9,9 @@
   "version": "0.1.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "dependencies": {
+    "@stratamu/types": "workspace:*"
+  },
   "scripts": {
     "clean": "rm -rf dist",
     "build:esm": "tsc -p tsconfig.esm.json",

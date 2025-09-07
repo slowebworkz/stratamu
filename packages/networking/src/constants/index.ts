@@ -12,4 +12,4 @@ export type {
   MUCKConstants,
   MUDConstants,
   MUSHConstants
-} from '@/types/game-constants'
+} from '@stratamu/types'

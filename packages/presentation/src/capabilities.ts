@@ -1,3 +1,9 @@
+import type {
+  ClientCapabilities,
+  FilterName,
+  OutputFilter
+} from '@stratamu/types'
+import { FILTER_NAMES } from '@stratamu/types'
 import {
   ansiFilter,
   msdpFilter,
@@ -5,21 +11,27 @@ import {
   puebloFilter,
   utf8Filter
 } from './middleware/index'
-import {
-  ClientCapabilities,
-  FILTER_NAMES,
-  FilterName,
-  OutputFilter
-} from './types'
 
-// Capability → Filter mapping
-const capabilityFilterMap: Record<FilterName, OutputFilter> = {
+/**
+ * Implementation mapping for all supported output filters.
+ * Each key must match a value in FILTER_NAMES.
+ */
+const filterImpls: Record<FilterName, OutputFilter> = {
   ansi: ansiFilter,
   pueblo: puebloFilter,
   mxp: mxpFilter,
   msdp: msdpFilter,
   utf8: utf8Filter
 }
+
+/**
+ * Maps each FilterName to its corresponding OutputFilter implementation.
+ * Constructed dynamically from FILTER_NAMES for type safety and maintainability.
+ */
+const capabilityFilterMap: Record<FilterName, OutputFilter> =
+  Object.fromEntries(
+    FILTER_NAMES.map((name) => [name, filterImpls[name]])
+  ) as Record<FilterName, OutputFilter>
 
 /**
  * Detect client capabilities from initial negotiation data.
@@ -34,6 +46,10 @@ export function detectCapabilitiesFromData(
 
 /**
  * CapabilitiesManager: manages detection, explicit setting, mapping to filters, and retrieval of client filter queues.
+ */
+/**
+ * Manages client capabilities, filter queue construction, and capability detection.
+ * Provides methods to set, get, and clear capabilities and filter queues for clients.
  */
 export class CapabilitiesManager {
   private readonly capabilities = new Map<string, ClientCapabilities>()

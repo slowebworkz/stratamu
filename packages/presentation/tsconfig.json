@@ -14,6 +14,6 @@
       "@stratamu/types": ["../../types/index"]
     }
   },
-  "exclude": ["vite.config.ts", "dist", "node_modules"],
+  "exclude": ["vite.config.ts", "dist", "node_modules", "src/**/*.test.ts"],
   "include": ["src/**/*.ts"]
 }

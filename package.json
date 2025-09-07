@@ -12,6 +12,7 @@
     "build": "turbo run build",
     "test": "turbo run test",
     "lint": "turbo run lint",
+    "lint:fix": "pnpm lint || (pnpm prettier --write . && pnpm lint)",
     "prepare": "husky"
   },
   "devDependencies": {
