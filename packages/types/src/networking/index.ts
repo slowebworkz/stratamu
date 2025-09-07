@@ -1,2 +1,2 @@
-export * from './client'
-export * from './connections'
+export * from './client.js'
+export * from './connections.js'

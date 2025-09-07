@@ -1,4 +1,4 @@
-import type { ClientCapabilities } from '../types'
+import type { ClientCapabilities } from '../types.js'
 
 export interface BaseClient {
   clientId: string

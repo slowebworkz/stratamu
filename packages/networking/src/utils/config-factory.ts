@@ -1,6 +1,9 @@
 // configFactory.ts - Convert game constants to networking configurations
-import type { TelnetConfig, WebSocketConfig } from '@/types/config'
-import type { GameNetworkingConstants } from '@/types/game-constants'
+import type {
+  GameNetworkingConstants,
+  TelnetConfig,
+  WebSocketConfig
+} from '@stratamu/types'
 
 /**
  * Creates a TelnetConfig from game-specific constants

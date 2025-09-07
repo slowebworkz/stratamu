@@ -74,7 +74,13 @@ export class CapabilitiesManager {
     const detected = detectCapabilitiesFromData(negotiationData)
 
     // Merge (explicit takes precedence)
-    const caps: ClientCapabilities = { ...detected, ...explicit }
+    let caps: ClientCapabilities = { ...detected, ...explicit }
+    // Ensure all FilterName keys are present, defaulting to false
+    for (const name of FILTER_NAMES) {
+      if (typeof caps[name] !== 'boolean') {
+        caps[name] = false
+      }
+    }
     this.capabilities.set(clientId, caps)
 
     // Build filter queue

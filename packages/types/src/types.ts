@@ -1,5 +1,5 @@
 import type { PartialDeep, Simplify, ValueOf } from 'type-fest'
-import type { BaseClient } from './networking/client'
+import type { BaseClient } from './networking/client.js'
 
 /**
  * Shared types for the stratamu monorepo.
