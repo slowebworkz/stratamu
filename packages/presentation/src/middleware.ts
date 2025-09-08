@@ -33,19 +33,19 @@ export class PresentationLayer {
   /**
    * Process data for a client using the stored filter queue.
    */
-  process(
+  async process(
     clientId: string,
     data: string,
     client?: import('@stratamu/types').BaseClient
-  ): string {
+  ): Promise<string> {
     const capabilities =
       this.capabilitiesManager.get(clientId) || client?.capabilities || {}
     const clientObj = { ...client, capabilities }
     const filters = this.capabilitiesManager.getFilterQueue(clientId)
     let idx = 0
-    const next = (t: string): string => {
+    const next = async (t: string): Promise<string> => {
       const filter = filters[idx++]
-      return filter ? filter(clientObj, t, next) : t
+      return filter ? await filter(clientObj, t, next) : t
     }
     return next(data)
   }

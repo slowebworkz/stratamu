@@ -1,5 +1,4 @@
-import type { OutputPipeline } from '@/output-pipeline'
-import type { BaseClient } from '@stratamu/types'
+import type { BaseClient, OutputPipeline } from '@stratamu/types'
 
 // --- UTF-8 pipeline ---
 
@@ -26,11 +25,14 @@ export const getUtf8Pipeline = (client: BaseClient): OutputPipeline => {
   return utf8PipelineCache.get(supportsUtf8)!
 }
 
-export const utf8Filter = (
+export const utf8Filter = async (
   client: BaseClient,
   text: string,
   next: OutputPipeline
-): string => next(getUtf8Pipeline(client)(text))
+): Promise<string> => {
+  const processed = await getUtf8Pipeline(client)(text)
+  return next(processed)
+}
 
 // --- ANSI filter ---
 
@@ -41,8 +43,11 @@ const ANSI_ESCAPE_REGEX =
 export const stripAnsi = (text: string): string =>
   text.replace(ANSI_ESCAPE_REGEX, '')
 
-export const ansiFilter = (
+export const ansiFilter = async (
   client: BaseClient,
   text: string,
-  next: (text: string) => string
-): string => next(client.capabilities?.ansi === false ? stripAnsi(text) : text)
+  next: OutputPipeline
+): Promise<string> => {
+  const filtered = client.capabilities?.ansi === false ? stripAnsi(text) : text
+  return next(filtered)
+}

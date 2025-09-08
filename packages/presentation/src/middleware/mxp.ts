@@ -10,15 +10,15 @@ export function stripMxp(text: string): string {
   return text.replace(MXP_TAG_REGEX, '')
 }
 
-export function mxpFilter(
+export async function mxpFilter(
   client: BaseClient,
   text: string,
-  next: (text: string) => string
-): string {
+  next: (text: string) => Promise<string>
+): Promise<string> {
   if (client.capabilities?.mxp === false) {
-    return next(stripMxp(text))
+    return await next(stripMxp(text))
   }
   // Optionally, handle MXP tags here for supported clients
   // Example: parse and sanitize tags, or convert to HTML for web clients
-  return next(text)
+  return await next(text)
 }

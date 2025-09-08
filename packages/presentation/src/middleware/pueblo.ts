@@ -10,15 +10,15 @@ export function stripPueblo(text: string): string {
   return text.replace(PUEBLO_TAG_REGEX, '')
 }
 
-export function puebloFilter(
+export async function puebloFilter(
   client: BaseClient,
   text: string,
-  next: (text: string) => string
-): string {
+  next: (text: string) => Promise<string>
+): Promise<string> {
   if (client.capabilities?.pueblo === false) {
-    return next(stripPueblo(text))
+    return await next(stripPueblo(text))
   }
   // Optionally, handle Pueblo tags here for supported clients
   // Example: parse and process multimedia tags
-  return next(text)
+  return await next(text)
 }

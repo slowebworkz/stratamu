@@ -1,31 +1,36 @@
-import type { OutputPipeline } from '@/output-pipeline'
-import type { BaseClient } from '@stratamu/types'
+import type { BaseClient, OutputPipeline } from '@stratamu/types'
+
+const COMBINING_MARKS = /[\u0300-\u036f]/g
+const NON_ASCII = /[^\x20-\x7e]/g
 
 // Remove diacritics (e.g., á -> a) and replace remaining non-ASCII/control chars with '?'.
-const stripDiacriticsAndNonAscii = (text: string): string => {
-  const normalized = text.normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
-  const chars: string[] = []
-  for (let i = 0; i < normalized.length; i++) {
-    const code = normalized.charCodeAt(i)
-    chars.push(code >= 0x20 && code <= 0x7e ? normalized[i] : '?')
-  }
-  return chars.join('')
-}
+const stripDiacriticsAndNonAscii: OutputPipeline = (text): Promise<string> =>
+  Promise.resolve(
+    text.normalize('NFKD').replace(COMBINING_MARKS, '').replace(NON_ASCII, '?')
+  )
+
+const identity: OutputPipeline = (text): Promise<string> =>
+  Promise.resolve(text)
 
 const utf8PipelineCache = new Map<boolean, OutputPipeline>()
 const buildUtf8Pipeline = (supportsUtf8: boolean): OutputPipeline =>
-  supportsUtf8 ? (text) => text : stripDiacriticsAndNonAscii
+  supportsUtf8 ? identity : stripDiacriticsAndNonAscii
 
 export const getUtf8Pipeline = (client: BaseClient): OutputPipeline => {
   const supportsUtf8 = client.capabilities?.utf8 ?? true
-  if (!utf8PipelineCache.has(supportsUtf8)) {
-    utf8PipelineCache.set(supportsUtf8, buildUtf8Pipeline(supportsUtf8))
-  }
-  return utf8PipelineCache.get(supportsUtf8)!
+  return (
+    utf8PipelineCache.get(supportsUtf8) ??
+    utf8PipelineCache
+      .set(supportsUtf8, buildUtf8Pipeline(supportsUtf8))
+      .get(supportsUtf8)!
+  )
 }
 
-export const utf8Filter = (
+export const utf8Filter = async (
   client: BaseClient,
   text: string,
   next: OutputPipeline
-): string => next(getUtf8Pipeline(client)(text))
+): Promise<string> => {
+  const processed = await getUtf8Pipeline(client)(text)
+  return next(processed)
+}

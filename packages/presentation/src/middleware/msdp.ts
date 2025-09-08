@@ -1,4 +1,4 @@
-import type { BaseClient } from '@stratamu/types'
+import type { BaseClient, OutputPipeline } from '@stratamu/types'
 // MSDP filter utility
 // MSDP uses IAC SB MSDP ... IAC SE (telnet subnegotiation)
 // For now, we strip MSDP sequences for unsupported clients and provide a hook for handling data.
@@ -26,17 +26,17 @@ export function stripMsdp(text: string): string {
   return text.replace(MSDP_BLOCK_REGEX, '')
 }
 
-export function msdpFilter(
+export async function msdpFilter(
   client: BaseClient,
   text: string,
-  next: (text: string) => string
-): string {
+  next: OutputPipeline
+): Promise<string> {
   if (client.capabilities?.msdp === false) {
-    return next(stripMsdp(text))
+    return await next(stripMsdp(text))
   }
   // Optionally, handle MSDP data here for supported clients
   // Example: extract and process MSDP blocks
   // const msdpBlocks = [...text.matchAll(MSDP_BLOCK_REGEX)];
   // msdpBlocks.forEach(match => { const data = parseMsdpBlock(match[1]); /* handle data */ });
-  return next(text)
+  return await next(text)
 }
