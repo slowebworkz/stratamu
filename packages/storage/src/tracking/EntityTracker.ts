@@ -18,7 +18,8 @@ export class EntityTracker {
    * @param entity The entity to mark as dirty.
    */
   markDirty(entity: GameEntity): void {
-    if (!entity?.id) throw new Error('EntityTracker: Cannot mark dirty, entity is missing id.')
+    if (!entity?.id)
+      throw new Error('EntityTracker: Cannot mark dirty, entity is missing id.')
     if (this.suspended) {
       this.staged.add(entity.id)
     } else {
@@ -33,7 +34,8 @@ export class EntityTracker {
    * @returns Unsubscribe function.
    */
   onDirty(callback: (entityId: EntityId) => void): () => void {
-    if (typeof callback !== 'function') throw new TypeError('EntityTracker: onDirty callback must be a function')
+    if (typeof callback !== 'function')
+      throw new TypeError('EntityTracker: onDirty callback must be a function')
     this.dirtyListeners.push(callback)
     return () => {
       const idx = this.dirtyListeners.indexOf(callback)
@@ -46,7 +48,10 @@ export class EntityTracker {
    * @param entity The entity to check.
    */
   isDirty(entity: GameEntity): boolean {
-    if (!entity?.id) throw new Error('EntityTracker: Cannot check dirty, entity is missing id.')
+    if (!entity?.id)
+      throw new Error(
+        'EntityTracker: Cannot check dirty, entity is missing id.'
+      )
     return this.tracker.isDirty(entity.id)
   }
 

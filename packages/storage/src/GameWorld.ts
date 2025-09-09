@@ -4,8 +4,8 @@
  */
 import type { GameEntity } from '@entities/entity'
 import { EntityStore } from '@entities/EntityStore'
-import { EntityTracker } from '@tracking/EntityTracker'
 import { EntityPersistence } from '@persistence/EntityPersistence'
+import { EntityTracker } from '@tracking/EntityTracker'
 
 export class GameWorld {
   // --- Private Fields ---
@@ -57,7 +57,9 @@ export class GameWorld {
       this.loaded = true
     } catch (err) {
       console.error('GameWorld: Failed to load entities:', err)
-      throw new Error(`GameWorld: Failed to load entities: ${err instanceof Error ? err.message : String(err)}`)
+      throw new Error(
+        `GameWorld: Failed to load entities: ${err instanceof Error ? err.message : String(err)}`
+      )
     }
   }
 
@@ -73,7 +75,8 @@ export class GameWorld {
    * @throws if world is not loaded.
    */
   get<T extends GameEntity = GameEntity>(id: string): T | undefined {
-    if (!this.loaded) throw new Error('GameWorld: Must call load() before get().')
+    if (!this.loaded)
+      throw new Error('GameWorld: Must call load() before get().')
     return this.store.get(id) as T | undefined
   }
 
@@ -82,7 +85,8 @@ export class GameWorld {
    * @throws if world is not loaded or entity is invalid.
    */
   add(entity: GameEntity): void {
-    if (!this.loaded) throw new Error('GameWorld: Must call load() before add().')
+    if (!this.loaded)
+      throw new Error('GameWorld: Must call load() before add().')
     this.store.add(entity)
     // No need to mark dirty here; proxy will do it on mutation
   }
@@ -92,9 +96,12 @@ export class GameWorld {
    * @throws if world is not loaded.
    */
   getDirtyEntities(): GameEntity[] {
-    if (!this.loaded) throw new Error('GameWorld: Must call load() before getDirtyEntities().')
+    if (!this.loaded)
+      throw new Error('GameWorld: Must call load() before getDirtyEntities().')
     const dirtyIds = this.tracker.getDirty()
-    return dirtyIds.map((id) => this.store.get(id)).filter(Boolean) as GameEntity[]
+    return dirtyIds
+      .map((id) => this.store.get(id))
+      .filter(Boolean) as GameEntity[]
   }
 
   /**
@@ -102,14 +109,17 @@ export class GameWorld {
    * @throws if world is not loaded or flush fails.
    */
   async flush(): Promise<void> {
-    if (!this.loaded) throw new Error('GameWorld: Must call load() before flush().')
+    if (!this.loaded)
+      throw new Error('GameWorld: Must call load() before flush().')
     try {
       const allEntities = this.store.getAll()
       await this.persistence.flushAsync(allEntities)
       this.tracker.clear()
     } catch (err) {
       console.error('GameWorld: Failed to flush entities:', err)
-      throw new Error(`GameWorld: Failed to flush entities: ${err instanceof Error ? err.message : String(err)}`)
+      throw new Error(
+        `GameWorld: Failed to flush entities: ${err instanceof Error ? err.message : String(err)}`
+      )
     }
   }
 
@@ -118,14 +128,17 @@ export class GameWorld {
    * @throws if world is not loaded or flush fails.
    */
   async flushDirty(): Promise<void> {
-    if (!this.loaded) throw new Error('GameWorld: Must call load() before flushDirty().')
+    if (!this.loaded)
+      throw new Error('GameWorld: Must call load() before flushDirty().')
     try {
       const dirtyEntities = this.getDirtyEntities()
       await this.persistence.flushAsync(dirtyEntities)
       this.tracker.clear()
     } catch (err) {
       console.error('GameWorld: Failed to flush dirty entities:', err)
-      throw new Error(`GameWorld: Failed to flush dirty entities: ${err instanceof Error ? err.message : String(err)}`)
+      throw new Error(
+        `GameWorld: Failed to flush dirty entities: ${err instanceof Error ? err.message : String(err)}`
+      )
     }
   }
 
@@ -136,7 +149,8 @@ export class GameWorld {
    * @throws if world is not loaded.
    */
   beginTransaction(): void {
-    if (!this.loaded) throw new Error('GameWorld: Must call load() before beginTransaction().')
+    if (!this.loaded)
+      throw new Error('GameWorld: Must call load() before beginTransaction().')
     this.tracker.suspend()
     this.store.snapshotState()
   }
@@ -146,7 +160,8 @@ export class GameWorld {
    * @throws if world is not loaded.
    */
   commitTransaction(): void {
-    if (!this.loaded) throw new Error('GameWorld: Must call load() before commitTransaction().')
+    if (!this.loaded)
+      throw new Error('GameWorld: Must call load() before commitTransaction().')
     this.tracker.resumeAndMark()
   }
 
@@ -155,7 +170,8 @@ export class GameWorld {
    * @throws if world is not loaded.
    */
   rollback(): void {
-    if (!this.loaded) throw new Error('GameWorld: Must call load() before rollback().')
+    if (!this.loaded)
+      throw new Error('GameWorld: Must call load() before rollback().')
     this.store.restoreSnapshot()
     this.tracker.clear() // Optionally clear dirty state for rolled-back changes
   }

@@ -1,9 +1,9 @@
-import { promises as fsp } from 'node:fs'
-import * as YAML from 'yaml'
 import {
   readFileSync as defaultReadFileSync,
-  writeFileSync as defaultWriteFileSync
+  writeFileSync as defaultWriteFileSync,
+  promises as fsp
 } from 'node:fs'
+import * as YAML from 'yaml'
 import { GameEntity } from '../entities/entity'
 
 /**

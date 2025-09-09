@@ -3,8 +3,11 @@
  * Provides type safety, documentation, and error handling for all operations.
  */
 import type { GameEntity } from '@entities/entity'
+import {
+  flushDirtyEntities,
+  flushDirtyEntitiesAsync
+} from '@gameworld/flushDirtyEntities'
 import { loadEntities, loadEntitiesAsync } from '@gameworld/loadEntities'
-import { flushDirtyEntities, flushDirtyEntitiesAsync } from '@gameworld/flushDirtyEntities'
 
 export class EntityPersistence {
   private filePath: string
@@ -23,12 +26,14 @@ export class EntityPersistence {
    * @returns Array of GameEntity objects.
    */
   load(): GameEntity[] {
-    const tracker = { markDirty: () => { } } as any
+    const tracker = { markDirty: () => {} } as any
     try {
       const map = loadEntities(this.filePath, tracker)
       return Array.from(map.values())
     } catch (err) {
-      throw new Error(`EntityPersistence: Failed to load entities: ${err instanceof Error ? err.message : String(err)}`)
+      throw new Error(
+        `EntityPersistence: Failed to load entities: ${err instanceof Error ? err.message : String(err)}`
+      )
     }
   }
 
@@ -37,12 +42,14 @@ export class EntityPersistence {
    * @returns Promise of GameEntity array.
    */
   async loadAsync(): Promise<GameEntity[]> {
-    const tracker = { markDirty: () => { } } as any
+    const tracker = { markDirty: () => {} } as any
     try {
       const map = await loadEntitiesAsync(this.filePath, tracker)
       return Array.from(map.values())
     } catch (err) {
-      throw new Error(`EntityPersistence: Failed to load entities (async): ${err instanceof Error ? err.message : String(err)}`)
+      throw new Error(
+        `EntityPersistence: Failed to load entities (async): ${err instanceof Error ? err.message : String(err)}`
+      )
     }
   }
 
@@ -54,7 +61,9 @@ export class EntityPersistence {
     try {
       flushDirtyEntities(this.filePath, entities)
     } catch (err) {
-      throw new Error(`EntityPersistence: Failed to flush entities: ${err instanceof Error ? err.message : String(err)}`)
+      throw new Error(
+        `EntityPersistence: Failed to flush entities: ${err instanceof Error ? err.message : String(err)}`
+      )
     }
   }
 
@@ -66,7 +75,9 @@ export class EntityPersistence {
     try {
       await flushDirtyEntitiesAsync(this.filePath, entities)
     } catch (err) {
-      throw new Error(`EntityPersistence: Failed to flush entities (async): ${err instanceof Error ? err.message : String(err)}`)
+      throw new Error(
+        `EntityPersistence: Failed to flush entities (async): ${err instanceof Error ? err.message : String(err)}`
+      )
     }
   }
 }

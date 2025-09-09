@@ -37,7 +37,8 @@ export class EntityStore {
    * @throws if entity is missing an id.
    */
   add(entity: GameEntity): void {
-    if (!entity?.id) throw new Error('EntityStore: Cannot add entity without id.')
+    if (!entity?.id)
+      throw new Error('EntityStore: Cannot add entity without id.')
     this.entities.set(entity.id, this.proxify(entity))
   }
 
@@ -70,7 +71,8 @@ export class EntityStore {
   replaceAll(entities: GameEntity[]): void {
     this.entities.clear()
     for (const e of entities) {
-      if (!e?.id) throw new Error('EntityStore: Cannot replace with entity missing id.')
+      if (!e?.id)
+        throw new Error('EntityStore: Cannot replace with entity missing id.')
       this.entities.set(e.id, this.proxify(e))
     }
   }

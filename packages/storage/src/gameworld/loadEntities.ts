@@ -1,4 +1,7 @@
-import { promises as fsp } from 'node:fs'
+import type { EntityMap, GameEntity } from '@entities/entity'
+import { DirtyTracker } from '@gameworld/DirtyTracker'
+import { trackEntity } from '@gameworld/trackEntity'
+import { promises as fsp, readFileSync } from 'node:fs'
 import * as YAML from 'yaml'
 /**
  * Async version of loadEntities using fs.promises
@@ -16,10 +19,6 @@ export async function loadEntitiesAsync(
   })
   return entities
 }
-import type { EntityMap, GameEntity } from '@entities/entity'
-import { DirtyTracker } from '@gameworld/DirtyTracker'
-import { trackEntity } from '@gameworld/trackEntity'
-import { readFileSync } from 'node:fs'
 
 export function loadEntities(
   filePath: string,

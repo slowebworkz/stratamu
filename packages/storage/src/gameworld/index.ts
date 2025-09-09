@@ -1,5 +1,5 @@
-export * from './DirtyTracker'
 export * from './addEntity'
+export * from './DirtyTracker'
 export * from './flushDirtyEntities'
 export * from './flushEntities'
 export * from './getDirtyEntities'

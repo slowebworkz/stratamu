@@ -11,8 +11,8 @@ export function trackEntity(
   return new Proxy(entity, {
     set(target: GameEntity, prop: keyof GameEntity, value: any) {
       if ((target as any)[prop] !== value) {
-        ; (target as any)[prop] = value
-          ; (target as any).updatedAt = Date.now()
+        ;(target as any)[prop] = value
+        ;(target as any).updatedAt = Date.now()
         tracker.markDirty((target as any).id)
       }
       return true
