@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "types": ["vitest", "vite/client", "node"],
+    "moduleResolution": "NodeNext",
+    "module": "NodeNext",
+    "baseUrl": "src"
+  },
+  "include": ["src/**/*.ts", "src/**/*.test.ts"]
+}

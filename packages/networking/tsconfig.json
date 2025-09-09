@@ -3,13 +3,14 @@
     "target": "es2015",
     "downlevelIteration": true,
     "outDir": "dist",
-    "rootDir": "src",
+    // "rootDir": "src",
     "baseUrl": "src",
     "noEmit": false,
     "declaration": true,
     "moduleResolution": "NodeNext",
-    "module": "NodeNext",
+    "module": "nodenext",
     "paths": {
+      "@stratamu/types": ["../../types/index"],
       "@/types": ["types/index"],
       "@/shared": ["shared/index"],
       "@/telnet": ["telnet/index"],
@@ -22,6 +23,6 @@
       "@/utils/*": ["utils/*"]
     }
   },
-  "exclude": ["vite.config.ts", "dist", "node_modules"],
-  "includes": ["src/**/*.ts"]
+  "exclude": ["vite.config.ts", "dist", "node_modules", "src/**/*.test.ts"],
+  "include": ["src/**/*.ts"]
 }

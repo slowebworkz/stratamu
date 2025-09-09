@@ -1,5 +1,5 @@
+import type { ConnectionLimits } from '@/types'
 import * as net from 'node:net'
-import type { ConnectionLimits } from '../types/index'
 
 export class ConnectionManager {
   private clients: Map<string, net.Socket> = new Map()
