@@ -1,0 +1,31 @@
+{
+  "name": "@stratamu/storage",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "@stratamu/types": "workspace:*"
+  },
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build": "pnpm run clean && pnpm run build:esm",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "test": "tsc --noEmit -p tsconfig.vitest.json && vitest --watch"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.1",
+    "@vitest/ui": "^3.2.4",
+    "tsconfig-paths": "^4.2.0",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.2.4",
+    "yaml": "^2.8.1"
+  }
+}
