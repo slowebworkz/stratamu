@@ -13,11 +13,8 @@
     "@stratamu/types": "workspace:*"
   },
   "scripts": {
+    "build": "tsc -p tsconfig.esm.json",
     "clean": "rm -rf dist",
-    "build:esm": "tsc -p tsconfig.esm.json",
-    "build": "pnpm run clean && pnpm run build:esm",
-    "lint": "eslint src/**/*.ts",
-    "lint:fix": "eslint src/**/*.ts --fix",
-    "test": "tsc --noEmit -p tsconfig.vitest.json && vitest --watch"
+    "test": "vitest run"
   }
 }
