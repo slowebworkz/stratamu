@@ -1,10 +1,9 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "outDir": "dist",
     "lib": ["es2015", "esnext", "dom"],
     "types": ["node"],
-    "moduleResolution": "node",
     "noEmit": false,
     "declaration": true
   },

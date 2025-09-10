@@ -15,7 +15,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.esm.json",
     "clean": "rm -rf dist",
-    "test": "vitest run"
+    "test": "vitest run",
+    "lint": "eslint src/**/*.ts"
   },
   "devDependencies": {
     "@types/node": "^24.3.1",

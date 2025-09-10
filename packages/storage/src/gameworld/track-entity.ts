@@ -1,5 +1,5 @@
 import { GameEntity } from '@entities/entity'
-import { DirtyTracker } from '@gameworld/DirtyTracker'
+import { DirtyTracker } from '@gameworld/dirty-tracker'
 
 /**
  * Wraps an entity in a Proxy to intercept changes and mark as dirty.

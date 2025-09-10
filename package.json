@@ -39,6 +39,7 @@
   "packageManager": "pnpm@10.14.0",
   "type": "module",
   "dependencies": {
+    "interval-promise": "^1.4.0",
     "yaml": "^2.8.1"
   }
 }

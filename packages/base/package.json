@@ -1,0 +1,13 @@
+{
+  "name": "@stratamu/base",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "emittery": "^0.13.1"
+  }
+}

@@ -4,7 +4,7 @@ import type { GameEntity } from '../entities/entity'
 
 // No need to mock node:fs, inject mocks directly
 
-import { flushDirtyEntities } from '../gameworld/flushDirtyEntities'
+import { flushDirtyEntities } from '../gameworld/flush-dirty-entities'
 
 const TEST_FILE = '/tmp/test-entities.yaml'
 

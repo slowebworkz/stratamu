@@ -1,6 +1,6 @@
 import type { EntityMap, GameEntity } from '@entities/entity'
-import { DirtyTracker } from '@gameworld/DirtyTracker'
-import { trackEntity } from '@gameworld/trackEntity'
+import { DirtyTracker } from '@gameworld/dirty-tracker'
+import { trackEntity } from '@gameworld/track-entity'
 import { promises as fsp, readFileSync } from 'node:fs'
 import * as YAML from 'yaml'
 /**

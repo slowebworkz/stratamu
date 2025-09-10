@@ -6,8 +6,8 @@ import type { GameEntity } from '@entities/entity'
 import {
   flushDirtyEntities,
   flushDirtyEntitiesAsync
-} from '@gameworld/flushDirtyEntities'
-import { loadEntities, loadEntitiesAsync } from '@gameworld/loadEntities'
+} from '@gameworld/flush-dirty-entities'
+import { loadEntities, loadEntitiesAsync } from '@gameworld/load-entities'
 
 export class EntityPersistence {
   private filePath: string

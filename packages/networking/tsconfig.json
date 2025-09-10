@@ -1,27 +1,11 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "target": "es2015",
     "downlevelIteration": true,
     "outDir": "dist",
-    // "rootDir": "src",
-    "baseUrl": "src",
     "noEmit": false,
-    "declaration": true,
-    "moduleResolution": "NodeNext",
-    "module": "nodenext",
-    "paths": {
-      "@stratamu/types": ["../../types/index"],
-      "@/types": ["types/index"],
-      "@/shared": ["shared/index"],
-      "@/telnet": ["telnet/index"],
-      "@/constants": ["constants/index"],
-      "@/utils": ["utils/index"],
-      "@/types/*": ["types/*"],
-      "@/shared/*": ["shared/*"],
-      "@/telnet/*": ["telnet/*"],
-      "@/constants/*": ["constants/*"],
-      "@/utils/*": ["utils/*"]
-    }
+    "declaration": true
   },
   "exclude": ["vite.config.ts", "dist", "node_modules", "src/**/*.test.ts"],
   "include": ["src/**/*.ts"]

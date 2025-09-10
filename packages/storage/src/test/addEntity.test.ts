@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { EntityMap, GameEntity } from '../entities/entity'
-import { addEntity } from '../gameworld/addEntity'
+import { addEntity } from '../gameworld/add-entity'
 
 // Helper: minimal valid GameEntity for tests
 const baseEntity: Partial<GameEntity> = {
