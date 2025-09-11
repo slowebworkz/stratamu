@@ -18,5 +18,8 @@
     "@stratamu/types": "workspace:*",
     "emittery": "^1.2.0",
     "pino": "^9.9.5"
+  },
+  "devDependencies": {
+    "type-fest": "^4.41.0"
   }
 }

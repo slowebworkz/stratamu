@@ -1,5 +1,7 @@
+
 import { BaseEventEmitter } from './events/index'
 
-export class BaseClass extends BaseEventEmitter {
-  // ...extend with your own logic or types as needed
+export class BaseClass<TEvents extends Record<string, any> = Record<string, unknown>>
+  extends BaseEventEmitter<TEvents> {
+  // ...any shared logic
 }

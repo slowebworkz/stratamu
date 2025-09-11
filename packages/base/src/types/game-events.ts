@@ -1,4 +1,8 @@
-// Shared event contract for game-wide event emitters
+
+import type { ReadonlyDeep, Opaque } from 'type-fest'
+
+export type PlayerId = Opaque<string, 'PlayerId'>
+export type RoomId = Opaque<string, 'RoomId'>
 
 export interface GameEvents {
   init: void
@@ -7,10 +11,10 @@ export interface GameEvents {
   stop: void
   destroy: void
 
-  'player:connect': { id: string; name: string }
-  'player:disconnect': { id: string }
-  'room:enter': { playerId: string; roomId: string }
-  'room:leave': { playerId: string; roomId: string }
-  'combat:start': { attacker: string; target: string }
-  'combat:end': { winner: string; loser: string }
+  'player:connect': ReadonlyDeep<{ id: PlayerId; name: string }>
+  'player:disconnect': ReadonlyDeep<{ id: PlayerId }>
+  'room:enter': ReadonlyDeep<{ playerId: PlayerId; roomId: RoomId }>
+  'room:leave': ReadonlyDeep<{ playerId: PlayerId; roomId: RoomId }>
+  'combat:start': ReadonlyDeep<{ attacker: PlayerId; target: PlayerId }>
+  'combat:end': ReadonlyDeep<{ winner: PlayerId; loser: PlayerId }>
 }
