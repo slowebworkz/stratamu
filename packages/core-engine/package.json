@@ -5,6 +5,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "lint": "eslint src/**/*.ts",
     "test": "vitest run"
   }
 }

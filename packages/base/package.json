@@ -9,13 +9,13 @@
       "require": "./dist/index.js"
     }
   },
-  "dependencies": {
-    "@stratamu/types": "workspace:*",
-    "emittery": "^1.2.0"
-  },
   "scripts": {
     "build": "tsc -p tsconfig.esm.json",
     "clean": "rm -rf dist",
-    "test": "vitest run"
+    "lint": "eslint src/**/*.ts"
+  },
+  "dependencies": {
+    "@stratamu/types": "workspace:*",
+    "emittery": "^1.2.0"
   }
 }
