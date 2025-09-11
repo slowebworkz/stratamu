@@ -1,0 +1,21 @@
+{
+  "name": "@stratamu/base",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "@stratamu/types": "workspace:*",
+    "emittery": "^1.2.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.esm.json",
+    "clean": "rm -rf dist",
+    "test": "vitest run"
+  }
+}
