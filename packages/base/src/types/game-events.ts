@@ -1,5 +1,4 @@
-
-import type { ReadonlyDeep, Opaque } from 'type-fest'
+import type { Opaque, ReadonlyDeep } from 'type-fest'
 
 export type PlayerId = Opaque<string, 'PlayerId'>
 export type RoomId = Opaque<string, 'RoomId'>

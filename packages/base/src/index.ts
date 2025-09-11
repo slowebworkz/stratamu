@@ -1,4 +1,3 @@
 export * from './base'
-export * from './lifecycle-state-machine'
 export * from './events'
-
+export * from './lifecycle-state-machine'
