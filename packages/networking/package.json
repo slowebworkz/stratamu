@@ -1,20 +1,21 @@
 {
+  "name": "@stratamu/networking",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/telnet.js",
       "require": "./dist/telnet.js"
     }
   },
-  "name": "@stratamu/networking",
-  "version": "0.1.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "dependencies": {
-    "@stratamu/types": "workspace:*"
-  },
   "scripts": {
     "build": "tsc -p tsconfig.esm.json",
     "clean": "rm -rf dist",
+    "lint": "eslint src/**/*.ts",
     "test": "vitest run"
+  },
+  "dependencies": {
+    "@stratamu/types": "workspace:*"
   }
 }

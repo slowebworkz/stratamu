@@ -1,10 +1,16 @@
 {
-  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "module": "ESNext",
+    "types": ["vitest", "vite/client", "node"],
     "moduleResolution": "NodeNext",
-    "outDir": "dist",
-    "declaration": true
+    "module": "NodeNext",
+    "baseUrl": "src",
+    "paths": {
+      "@stratamu/types": ["../../types/index"],
+      "@entities/*": ["entities/*"],
+      "@gameworld/*": ["gameworld/*"],
+      "@/*": ["./*"],
+      "@/middleware/*": ["middleware/*"]
+    }
   },
   "include": ["src/**/*.ts", "src/**/*.test.ts"]
 }

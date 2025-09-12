@@ -1,6 +1,7 @@
 // Entry point for all shared types
 export * from './config/index.js'
 export * from './game/index.js'
+export * from './lifecycle/index.js'
 export * from './networking/index.js'
 export * from './types.js'
 

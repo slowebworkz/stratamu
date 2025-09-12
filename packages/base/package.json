@@ -3,11 +3,23 @@
   "version": "0.1.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "license": "MIT",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.esm.json",
+    "clean": "rm -rf dist",
+    "lint": "eslint src/**/*.ts"
+  },
   "dependencies": {
-    "emittery": "^0.13.1"
+    "@stratamu/types": "workspace:*",
+    "emittery": "^1.2.0",
+    "pino": "^9.9.5"
+  },
+  "devDependencies": {
+    "type-fest": "^4.41.0"
   }
 }
