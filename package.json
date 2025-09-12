@@ -1,20 +1,17 @@
 {
   "name": "stratamu",
   "description": "Template for setting up a TypeScript monorepo",
-  "private": true,
-  "workspaces": [
-    "packages/*",
-    "apps/*"
-  ],
+  "type": "module",
   "scripts": {
-    "docs": "doctoc --title '**Table of content**' README.md",
-    "clean": "pnpm run -r clean",
     "build": "turbo run build",
-    "test": "turbo run test",
+    "clean": "turbo run clean",
+    "docs": "doctoc --title '**Table of content**' README.md",
     "lint": "turbo run lint",
-    "lint:fix": "pnpm lint || (pnpm prettier --write . && pnpm lint)",
-    "prepare": "husky"
+    "lint:fix": "pnpm run lint || (pnpm run prettier && pnpm run lint)",
+    "format": "prettier --write .",
+    "test": "turbo run test"
   },
+  "dependencies": {},
   "devDependencies": {
     "@eslint/js": "~9.33.0",
     "@types/node": "^24.3.1",
@@ -36,9 +33,10 @@
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.4"
   },
-  "packageManager": "pnpm@10.14.0",
-  "type": "module",
-  "dependencies": {
-    "yaml": "^2.8.1"
-  }
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "private": true,
+  "packageManager": "pnpm@10.14.0"
 }

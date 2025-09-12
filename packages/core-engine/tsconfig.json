@@ -4,7 +4,8 @@
     "outDir": "dist",
     "lib": ["es2015", "esnext", "dom"],
     "types": ["node"],
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
+    "module": "nodenext",
     "noEmit": false,
     "declaration": true
   },
