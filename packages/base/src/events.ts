@@ -1,5 +1,5 @@
 import Emittery from 'emittery'
-import type { Args } from '../types'
+import type { Args } from './types'
 
 export class BaseEventEmitter<
   TEvents extends Record<string, any> = Record<string, unknown>

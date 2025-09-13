@@ -1,4 +1,4 @@
-import { BaseEventEmitter } from './events/index'
+import { BaseEventEmitter } from './events'
 
 export class BaseClass<
   TEvents extends Record<string, any> = Record<string, unknown>
