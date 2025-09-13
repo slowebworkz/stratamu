@@ -10,7 +10,8 @@
     }
   },
   "dependencies": {
-    "@stratamu/types": "workspace:*"
+    "@stratamu/types": "workspace:*",
+    "interval-promise": "^1.4.0"
   },
   "scripts": {
     "build": "tsc -p tsconfig.esm.json",
