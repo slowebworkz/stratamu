@@ -35,26 +35,32 @@ export class LifecycleStateMachine extends BaseClass<LifecycleEvents> {
   ) {
     if (!hook) return
     // If the hook expects only from, to (length === 2), skip payload
-    const params = hook.length === 2
-      ? [from, to] as [LifecycleState, LifecycleState]
-      : [from, to, payload] as [LifecycleState, LifecycleState, any]
+    const params =
+      hook.length === 2
+        ? ([from, to] as [LifecycleState, LifecycleState])
+        : ([from, to, payload] as [LifecycleState, LifecycleState, any])
     await hook.apply(null, params)
   }
 
   // --- State ---
   private state: LifecycleState = 'created'
-  private readonly validTransitions: Record<LifecycleState, LifecycleState[]> = {
-    created: ['initialized'],
-    initialized: ['running', 'destroyed'],
-    running: ['suspended', 'stopped', 'initialized'],
-    suspended: ['running', 'stopped', 'initialized'],
-    stopped: ['destroyed', 'initialized'],
-    destroyed: []
-  }
+  private readonly validTransitions: Record<LifecycleState, LifecycleState[]> =
+    {
+      created: ['initialized'],
+      initialized: ['running', 'destroyed'],
+      running: ['suspended', 'stopped', 'initialized'],
+      suspended: ['running', 'stopped', 'initialized'],
+      stopped: ['destroyed', 'initialized'],
+      destroyed: []
+    }
 
   // --- Hooks ---
-  private onEnterHooks: Partial<{ [S in keyof StateToEventMap]: StateHook<StateToEventMap[S]> }> = {}
-  private onExitHooks: Partial<{ [S in keyof StateToEventMap]: StateHook<StateToEventMap[S]> }> = {}
+  private onEnterHooks: Partial<{
+    [S in keyof StateToEventMap]: StateHook<StateToEventMap[S]>
+  }> = {}
+  private onExitHooks: Partial<{
+    [S in keyof StateToEventMap]: StateHook<StateToEventMap[S]>
+  }> = {}
 
   // --- Config ---
   private _logging = false
@@ -111,7 +117,7 @@ export class LifecycleStateMachine extends BaseClass<LifecycleEvents> {
     state: S,
     hook: StateHook<StateToEventMap[S]>
   ) {
-    (this.onEnterHooks as any)[state] = hook
+    ;(this.onEnterHooks as any)[state] = hook
   }
 
   /**
@@ -121,7 +127,7 @@ export class LifecycleStateMachine extends BaseClass<LifecycleEvents> {
     state: S,
     hook: StateHook<StateToEventMap[S]>
   ) {
-    (this.onExitHooks as any)[state] = hook
+    ;(this.onExitHooks as any)[state] = hook
   }
 
   // --- Private Helpers ---

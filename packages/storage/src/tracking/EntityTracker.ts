@@ -3,7 +3,7 @@
  * Ensures transactional safety and extensibility for advanced use cases.
  */
 import type { GameEntity } from '@entities/entity'
-import { DirtyTracker } from '@gameworld/DirtyTracker'
+import { DirtyTracker } from '@gameworld/dirty-tracker'
 
 export type EntityId = string
 

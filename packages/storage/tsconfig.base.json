@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "src",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "paths": {
+      "@stratamu/types": ["../../types/index"],
+      "@entities/*": ["entities/*"],
+      "@gameworld/*": ["gameworld/*"],
+      "@persistence/*": ["persistence/*"],
+      "@tracking/*": ["tracking/*"],
+      "@/*": ["./*"]
+    }
+  }
+}

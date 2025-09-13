@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "src",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "paths": {
+      "@stratamu/types": ["../../types/index"],
+      "@/types": ["types/index"],
+      "@/shared": ["shared/index"],
+      "@/telnet": ["telnet/index"],
+      "@/constants": ["constants/index"],
+      "@/utils": ["utils/index"],
+      "@/types/*": ["types/*"],
+      "@/shared/*": ["shared/*"],
+      "@/telnet/*": ["telnet/*"],
+      "@/constants/*": ["constants/*"],
+      "@/utils/*": ["utils/*"]
+    }
+  }
+}

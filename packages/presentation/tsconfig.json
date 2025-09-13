@@ -1,20 +1,11 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "target": "es2015",
     "downlevelIteration": true,
     "outDir": "dist",
-    // "rootDir": "src",
-    "baseUrl": "src",
     "noEmit": false,
-    "declaration": true,
-    "moduleResolution": "NodeNext",
-    "module": "NodeNext",
-    "paths": {
-      "@stratamu/types": ["../../types/index"],
-      "@/*": ["./*"],
-      "@/middleware/*": ["middleware/*"]
-    }
+    "declaration": true
   },
   "exclude": ["vite.config.ts", "dist", "node_modules", "src/**/*.test.ts"],
   "include": ["src/**/*.ts"]

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { DirtyTracker } from '../gameworld/DirtyTracker'
+import { DirtyTracker } from '../gameworld/dirty-tracker'
 
 describe('DirtyTracker', () => {
   it('marks and checks dirty entities', () => {
