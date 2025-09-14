@@ -12,7 +12,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.esm.json",
     "clean": "rm -rf dist",
-    "lint": "eslint src/**/*.ts"
+    "lint": "eslint src/**/*.ts",
+    "test": "vitest run --config tsconfig.vitest.json"
   },
   "dependencies": {
     "@stratamu/types": "workspace:*",
@@ -20,6 +21,7 @@
     "pino": "^9.9.5"
   },
   "devDependencies": {
-    "type-fest": "^4.41.0"
+    "type-fest": "^4.41.0",
+    "vitest": "^3.2.4"
   }
 }

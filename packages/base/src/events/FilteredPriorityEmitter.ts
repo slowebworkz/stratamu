@@ -1,3 +1,4 @@
+import type { BaseEventMap } from '@/types/base-event-map'
 import Emittery from 'emittery'
 import type { Args } from './types'
 
@@ -13,7 +14,7 @@ import type { Args } from './types'
  * @template EventMap - The event map for this emitter.
  */
 export class FilteredPriorityEmitter<
-  EventMap extends Record<string, unknown> = Record<string, unknown>
+  EventMap extends BaseEventMap = BaseEventMap<unknown>
 > extends Emittery<EventMap> {
   /**
    * Internal map of event names to arrays of priority listeners.
