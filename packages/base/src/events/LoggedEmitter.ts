@@ -1,5 +1,5 @@
-import Emittery from 'emittery'
 import pino, { DestinationStream, Logger, LoggerOptions } from 'pino'
+import { FilteredPriorityEmitter } from './FilteredPriorityEmitter'
 
 // Common logger levels for pino and proxies
 export const LOGGER_LEVELS = [
@@ -15,7 +15,7 @@ type LogLevel = keyof Pick<Logger, (typeof LOGGER_LEVELS)[number]>
 
 export class LoggedEmitter<
   TEvents extends Record<string, any> = Record<string, unknown>
-> extends Emittery<TEvents> {
+> extends FilteredPriorityEmitter<TEvents> {
   protected logger: Logger
 
   public readonly log: {
