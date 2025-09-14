@@ -15,12 +15,12 @@ const perfNow: () => number =
       : () => Date.now()
 
 /**
- * DatalessEventNames<T> is a utility type for event names whose value is undefined.
+ * DatalessEventNames<EventMap> is a utility type for event names whose value is undefined.
  * Used to overload emit signatures for events with no payload.
  */
-type DatalessEventNames<T> = {
-  [K in keyof T]: undefined extends T[K] ? K : never
-}[keyof T]
+type DatalessEventNames<EventMap> = {
+  [K in keyof EventMap]: undefined extends EventMap[K] ? K : never
+}[keyof EventMap]
 
 /**
  * EventMetrics describes per-event emission statistics.
@@ -50,11 +50,11 @@ export interface EventMetrics {
  * - Overloads emit() to match Emittery/FilteredPriorityEmitter signatures.
  * - resetMetrics() clears all or per-event metrics.
  *
- * @template Events - The event map for this emitter.
+ * @template EventMap - The event map for this emitter.
  */
 export class MetricsEmitter<
-  Events extends Record<string, any[]>
-> extends FilteredPriorityEmitter<Events> {
+  EventMap extends Record<string, any[]> = Record<string, unknown[]>
+> extends FilteredPriorityEmitter<EventMap> {
   /**
    * Override on() to wrap listeners for timing and error tracking.
    *
@@ -63,15 +63,15 @@ export class MetricsEmitter<
    * @param options Optional: { signal } for abortable listeners.
    * @returns Unsubscribe function.
    */
-  on<Name extends keyof Events | keyof OmnipresentEventData>(
-    eventName: Name | readonly Name[],
+  on<EventName extends keyof EventMap | keyof OmnipresentEventData>(
+    eventName: EventName | readonly EventName[],
     listener: (
-      eventData: (Events & OmnipresentEventData)[Name]
+      eventData: (EventMap & OmnipresentEventData)[EventName]
     ) => void | Promise<void>,
     options?: { signal?: AbortSignal }
   ): UnsubscribeFunction {
     const wrapped = async (
-      eventData: (Events & OmnipresentEventData)[Name]
+      eventData: (EventMap & OmnipresentEventData)[EventName]
     ) => {
       const start = perfNow()
       let error: unknown = undefined
@@ -157,26 +157,26 @@ export class MetricsEmitter<
    * Emit an event with no payload (dataless event).
    * @param eventName The event name.
    */
-  async emit<Name extends DatalessEventNames<Events>>(
-    eventName: Name
+  async emit<EventName extends DatalessEventNames<EventMap>>(
+    eventName: EventName
   ): Promise<void>
   /**
    * Emit an event with a payload.
    * @param eventName The event name.
    * @param eventData The event payload.
    */
-  async emit<Name extends keyof Events>(
-    eventName: Name,
-    eventData: Events[Name]
+  async emit<EventName extends keyof EventMap>(
+    eventName: EventName,
+    eventData: EventMap[EventName]
   ): Promise<void>
   /**
    * Emit an event (overload for optional payload).
    * @param eventName The event name.
    * @param eventData The event payload (optional).
    */
-  async emit<Name extends keyof Events>(
-    eventName: Name,
-    eventData?: Events[Name]
+  async emit<EventName extends keyof EventMap>(
+    eventName: EventName,
+    eventData?: EventMap[EventName]
   ): Promise<void> {
     const start = perfNow()
     let error: unknown = undefined

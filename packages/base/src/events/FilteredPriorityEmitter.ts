@@ -10,19 +10,19 @@ import type { Args } from './types'
  * - emitWithPriority: Emits to priority listeners (in order, with filters), then to normal listeners.
  * - clearPriorityListeners: Remove all priority listeners.
  *
- * @template TEvents - The event map for this emitter.
+ * @template EventMap - The event map for this emitter.
  */
 export class FilteredPriorityEmitter<
-  TEvents extends Record<string, any> = Record<string, unknown>
-> extends Emittery<TEvents> {
+  EventMap extends Record<string, unknown> = Record<string, unknown>
+> extends Emittery<EventMap> {
   /**
    * Internal map of event names to arrays of priority listeners.
    */
   private _priorityListeners: {
-    [K in keyof TEvents]?: Array<{
-      callback: (...args: Args<TEvents[K]>) => void
+    [EventName in keyof EventMap]?: Array<{
+      callback: (...args: Args<EventMap[EventName]>) => void | Promise<void>
       priority: number
-      filter?: (...args: Args<TEvents[K]>) => boolean
+      filter?: (...args: Args<EventMap[EventName]>) => boolean
     }>
   } = {}
 
@@ -35,12 +35,12 @@ export class FilteredPriorityEmitter<
    * @param options Optional: { priority, filter }.
    * @returns Unsubscribe function.
    */
-  onWithOptions<Name extends keyof TEvents>(
-    event: Name,
-    callback: (...args: Args<TEvents[Name]>) => void,
+  onWithOptions<EventName extends keyof EventMap>(
+    event: EventName,
+    callback: (...args: Args<EventMap[EventName]>) => void | Promise<void>,
     options?: {
       priority?: number
-      filter?: (...args: Args<TEvents[Name]>) => boolean
+      filter?: (...args: Args<EventMap[EventName]>) => boolean
     }
   ): () => void {
     const arr = this._priorityListeners[event] ?? []
@@ -66,9 +66,9 @@ export class FilteredPriorityEmitter<
    * @param event The event name.
    * @param args Arguments for the event.
    */
-  async emitWithPriority<Name extends keyof TEvents>(
-    event: Name,
-    ...args: Args<TEvents[Name]>
+  async emitWithPriority<EventName extends keyof EventMap>(
+    event: EventName,
+    ...args: Args<EventMap[EventName]>
   ): Promise<void> {
     const arr = this._priorityListeners[event] ?? []
     for (const listener of arr) {
