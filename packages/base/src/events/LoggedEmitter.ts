@@ -1,4 +1,4 @@
-import type { DestinationStream, Logger, LoggerOptions } from 'pino'
+import type { Logger } from 'pino'
 import pino from 'pino'
 import { MetricsEmitter } from './MetricsEmitter'
 
@@ -22,15 +22,15 @@ type LogLevel = keyof Pick<Logger, (typeof LOGGER_LEVELS)[number]>
 /**
  * LoggedEmitter extends MetricsEmitter to add structured logging via pino.
  *
- * - Provides a logger instance and a log proxy for all levels.
- * - Accepts an external logger or creates one with options/destination.
+ * - Provides a per-instance logger and a log proxy for all levels.
+ * - Always creates a new logger for each instance; does not accept logger or options in the constructor.
  * - All log methods are available as this.log.info(), this.log.error(), etc.
  *
- * @template TEvents - The event map for this emitter.
+ * @template EventMap - The event map for this emitter.
  */
 export class LoggedEmitter<
-  TEvents extends Record<string, any> = Record<string, unknown>
-> extends MetricsEmitter<TEvents> {
+  EventMap extends Record<string, any[]> = Record<string, unknown[]>
+> extends MetricsEmitter<EventMap> {
   /**
    * The pino logger instance used for all logging.
    */
@@ -44,23 +44,13 @@ export class LoggedEmitter<
   }
 
   /**
-   * Construct a LoggedEmitter with optional logger, options, or destination.
-   * @param logger Optional external pino logger instance.
-   * @param loggerOptions Optional pino logger options.
-   * @param loggerDestination Optional pino destination stream.
+   * Construct a LoggedEmitter. Always creates a new logger for each instance.
    */
-  constructor(
-    logger?: Logger,
-    loggerOptions?: LoggerOptions,
-    loggerDestination?: DestinationStream
-  ) {
+  constructor() {
     super()
-    this.logger =
-      logger ??
-      (loggerOptions || loggerDestination
-        ? pino(loggerOptions ?? {}, loggerDestination)
-        : pino())
-
+    this.logger = pino({
+      timestamp: pino.stdTimeFunctions.isoTime
+    })
     // Initialize log methods using LOGGER_LEVELS
     this.log = {} as typeof this.log
     for (const level of LOGGER_LEVELS) {

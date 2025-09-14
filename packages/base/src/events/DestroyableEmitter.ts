@@ -6,11 +6,11 @@ import { BubblingEmitter } from './BubblingEmitter'
  * - Provides a destroy() method to clean up listeners and parent references.
  * - Useful for objects that need explicit teardown (e.g., game entities, subsystems).
  *
- * @template TEvents - The event map for this emitter.
+ * @template EventMap - The event map for this emitter.
  */
 export class DestroyableEmitter<
-  TEvents extends Record<string, any>
-> extends BubblingEmitter<TEvents> {
+  EventMap extends Record<string, unknown[]> = Record<string, unknown[]>
+> extends BubblingEmitter<EventMap> {
   /**
    * Remove all listeners from this emitter.
    */

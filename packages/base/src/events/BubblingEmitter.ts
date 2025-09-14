@@ -8,27 +8,27 @@ import { SafeEmitter } from './SafeEmitter'
  * - Prevents infinite loops via a visited set.
  * - Supports enabling/disabling bubbling per event type.
  *
- * @template TEvents - The event map for this emitter.
- * @template TParentEvents - The event map for the parent emitter (defaults to TEvents).
+ * @template EventMap - The event map for this emitter.
+ * @template ParentEventMap - The event map for the parent emitter (defaults to EventMap).
  */
 export class BubblingEmitter<
-  TEvents extends Record<string, any>,
-  TParentEvents extends Record<string, any> = TEvents
-> extends SafeEmitter<TEvents> {
+  EventMap extends Record<string, unknown[]> = Record<string, unknown[]>,
+  ParentEventMap extends Record<string, unknown[]> = EventMap
+> extends SafeEmitter<EventMap> {
   /**
    * Optional parent emitter to which events may bubble.
    */
-  protected parent?: BubblingEmitter<TParentEvents>
+  protected parent?: BubblingEmitter<ParentEventMap>
   /**
    * Set of event names that should bubble to the parent.
    */
-  private bubbleEvents = new Set<keyof TEvents>()
+  private bubbleEvents = new Set<keyof EventMap>()
 
   /**
    * Construct a BubblingEmitter with an optional parent.
    * @param parent Optional parent emitter for bubbling.
    */
-  constructor(parent?: BubblingEmitter<TParentEvents>) {
+  constructor(parent?: BubblingEmitter<ParentEventMap>) {
     super()
     this.parent = parent
   }
@@ -36,7 +36,7 @@ export class BubblingEmitter<
   /**
    * Get the parent emitter, if any.
    */
-  public getParent(): BubblingEmitter<TParentEvents> | undefined {
+  public getParent(): BubblingEmitter<ParentEventMap> | undefined {
     return this.parent
   }
 
@@ -44,7 +44,7 @@ export class BubblingEmitter<
    * Enable bubbling for a specific event type.
    * @param event The event name to enable bubbling for.
    */
-  public enableBubble<Name extends keyof TEvents>(event: Name): void {
+  public enableBubble<Name extends keyof EventMap>(event: Name): void {
     this.bubbleEvents.add(event)
   }
 
@@ -52,7 +52,7 @@ export class BubblingEmitter<
    * Disable bubbling for a specific event type.
    * @param event The event name to disable bubbling for.
    */
-  public disableBubble<Name extends keyof TEvents>(event: Name): void {
+  public disableBubble<Name extends keyof EventMap>(event: Name): void {
     this.bubbleEvents.delete(event)
   }
 
@@ -60,7 +60,7 @@ export class BubblingEmitter<
    * Check if bubbling is enabled for a specific event.
    * @param event The event name to check.
    */
-  public isBubbling<Name extends keyof TEvents>(event: Name): boolean {
+  public isBubbling<Name extends keyof EventMap>(event: Name): boolean {
     return this.bubbleEvents.has(event)
   }
 
@@ -69,9 +69,9 @@ export class BubblingEmitter<
    * @param eventName The event name.
    * @param args Arguments for the event.
    */
-  async emitWithBubble<Name extends keyof TEvents>(
+  async emitWithBubble<Name extends keyof EventMap>(
     eventName: Name,
-    ...args: Args<TEvents[Name]>
+    ...args: Args<EventMap[Name]>
   ): Promise<void> {
     await this.emitSafe(eventName, ...args)
     if (this.bubbleEvents.has(eventName)) {
@@ -86,9 +86,9 @@ export class BubblingEmitter<
    * @param args Arguments for the event.
    * @param visited Set of visited emitters to prevent cycles.
    */
-  protected async bubbleToParent<Name extends keyof TEvents>(
+  protected async bubbleToParent<Name extends keyof EventMap>(
     eventName: Name,
-    args: Args<TEvents[Name]>,
+    args: Args<EventMap[Name]>,
     visited: Set<BubblingEmitter<any>> = new Set()
   ): Promise<void> {
     const parent = this.parent
@@ -99,12 +99,12 @@ export class BubblingEmitter<
 
     // Type assertion: allow bubbling to parent with a different event map
     await parent.emitSafe(
-      eventName as keyof TParentEvents,
-      ...(args as unknown as Args<TParentEvents[keyof TParentEvents]>)
+      eventName as keyof ParentEventMap,
+      ...(args as unknown as Args<ParentEventMap[keyof ParentEventMap]>)
     )
     await parent.bubbleToParent(
-      eventName as keyof TParentEvents,
-      args as unknown as Args<TParentEvents[keyof TParentEvents]>,
+      eventName as keyof ParentEventMap,
+      args as unknown as Args<ParentEventMap[keyof ParentEventMap]>,
       visited
     )
   }

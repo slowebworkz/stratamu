@@ -26,11 +26,13 @@ export type StateMachineEventMap<
   STATE extends StateName,
   EVENT extends EventName,
   PAYLOADS extends EventPayloadMap<EVENT>
-> = {
-  transition: TransitionContext<STATE, EVENT, PAYLOADS>
-} & {
-  [K in EVENT]: PAYLOADS[K]
-}
+> = Simplify<
+  {
+    transition: [TransitionContext<STATE, EVENT, PAYLOADS>]
+  } & {
+    [K in EVENT]: [PAYLOADS[K]]
+  }
+>
 
 // --- Generic StateMachine class ---
 export class StateMachine<
