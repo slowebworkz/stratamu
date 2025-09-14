@@ -1,2 +1,2 @@
 export type * from './args'
-export type * from './game-events'
+// removed unused game-events export
