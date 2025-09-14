@@ -1,9 +1,23 @@
 import Emittery from 'emittery'
 import type { Args } from './types'
 
+/**
+ * FilteredPriorityEmitter extends Emittery to support advanced listener options:
+ *
+ * - Priority listeners: Listeners can be registered with a priority (higher runs first).
+ * - Filtered listeners: Listeners can be registered with a filter function to conditionally run.
+ * - onWithOptions: Register a listener with priority and/or filter.
+ * - emitWithPriority: Emits to priority listeners (in order, with filters), then to normal listeners.
+ * - clearPriorityListeners: Remove all priority listeners.
+ *
+ * @template TEvents - The event map for this emitter.
+ */
 export class FilteredPriorityEmitter<
   TEvents extends Record<string, any> = Record<string, unknown>
 > extends Emittery<TEvents> {
+  /**
+   * Internal map of event names to arrays of priority listeners.
+   */
   private _priorityListeners: {
     [K in keyof TEvents]?: Array<{
       callback: (...args: Args<TEvents[K]>) => void
@@ -15,6 +29,11 @@ export class FilteredPriorityEmitter<
   /**
    * Register a listener with optional priority and filter.
    * Returns an unsubscribe function.
+   *
+   * @param event The event name.
+   * @param callback The listener function.
+   * @param options Optional: { priority, filter }.
+   * @returns Unsubscribe function.
    */
   onWithOptions<Name extends keyof TEvents>(
     event: Name,
@@ -43,6 +62,9 @@ export class FilteredPriorityEmitter<
   /**
    * Emit an event, calling priority listeners first (in order, with filters), then Emittery listeners.
    * Returns a Promise that resolves when all listeners have completed.
+   *
+   * @param event The event name.
+   * @param args Arguments for the event.
    */
   async emitWithPriority<Name extends keyof TEvents>(
     event: Name,
@@ -58,7 +80,7 @@ export class FilteredPriorityEmitter<
   }
 
   /**
-   * Remove all priority listeners.
+   * Remove all priority listeners for all events.
    */
   clearPriorityListeners(): void {
     this._priorityListeners = {}

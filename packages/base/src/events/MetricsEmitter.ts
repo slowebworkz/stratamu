@@ -6,19 +6,31 @@ import { performance as nodePerformance } from 'node:perf_hooks'
 // Use performance.now() for high-precision timing; prefer globalThis, then node:perf_hooks, then Date.now
 const perfNow: () => number =
   typeof globalThis !== 'undefined' &&
-    globalThis.performance &&
-    typeof globalThis.performance.now === 'function'
+  globalThis.performance &&
+  typeof globalThis.performance.now === 'function'
     ? () => globalThis.performance.now()
     : typeof nodePerformance !== 'undefined' &&
-      typeof nodePerformance.now === 'function'
+        typeof nodePerformance.now === 'function'
       ? () => nodePerformance.now()
       : () => Date.now()
 
-// Utility type: event names whose value is undefined
+/**
+ * DatalessEventNames<T> is a utility type for event names whose value is undefined.
+ * Used to overload emit signatures for events with no payload.
+ */
 type DatalessEventNames<T> = {
   [K in keyof T]: undefined extends T[K] ? K : never
 }[keyof T]
 
+/**
+ * EventMetrics describes per-event emission statistics.
+ * - event: Event name
+ * - count: Number of times emitted
+ * - totalTimeMs: Aggregate time spent in listeners
+ * - lastTimeMs: Time spent in last emission
+ * - slowestListener: Name of slowest listener (if any)
+ * - slowestTimeMs: Time of slowest listener (if any)
+ */
 export interface EventMetrics {
   event: string
   count: number
@@ -28,9 +40,29 @@ export interface EventMetrics {
   slowestTimeMs?: number
 }
 
+/**
+ * MetricsEmitter extends FilteredPriorityEmitter to add per-event metrics:
+ *
+ * - Tracks emission count, total/last time, and slowest listener per event.
+ * - Wraps listeners to time their execution.
+ * - Provides getEventMetrics() for reporting.
+ * - Only increments counts for successful emits (errors are still timed).
+ * - Overloads emit() to match Emittery/FilteredPriorityEmitter signatures.
+ * - resetMetrics() clears all or per-event metrics.
+ *
+ * @template Events - The event map for this emitter.
+ */
 export class MetricsEmitter<
   Events extends Record<string, any[]>
 > extends FilteredPriorityEmitter<Events> {
+  /**
+   * Override on() to wrap listeners for timing and error tracking.
+   *
+   * @param eventName The event name or array of names.
+   * @param listener The listener function.
+   * @param options Optional: { signal } for abortable listeners.
+   * @returns Unsubscribe function.
+   */
   on<Name extends keyof Events | keyof OmnipresentEventData>(
     eventName: Name | readonly Name[],
     listener: (
@@ -61,6 +93,12 @@ export class MetricsEmitter<
     return super.on(eventName, wrapped, options)
   }
 
+  /**
+   * Record the slowest listener for an event.
+   * @param event Event name.
+   * @param listener Listener function.
+   * @param elapsed Time in ms.
+   */
   private _recordListenerTime(
     event: string,
     listener: (...args: any[]) => any,
@@ -74,12 +112,28 @@ export class MetricsEmitter<
       })
     }
   }
+  /**
+   * Map of event name to emission count.
+   */
   private _eventCounts: Map<string, number> = new Map()
+  /**
+   * Map of event name to total time spent in listeners.
+   */
   private _eventTotalTime: Map<string, number> = new Map()
+  /**
+   * Map of event name to last emission time.
+   */
   private _eventLastTime: Map<string, number> = new Map()
+  /**
+   * Map of event name to slowest listener/time.
+   */
   private _eventSlowest: Map<string, { time: number; listener: string }> =
     new Map()
 
+  /**
+   * Get metrics for all events.
+   * @returns Array of EventMetrics objects.
+   */
   getEventMetrics(): EventMetrics[] {
     const metrics: EventMetrics[] = []
     for (const [event, count] of this._eventCounts.entries()) {
@@ -99,13 +153,27 @@ export class MetricsEmitter<
   }
 
   // Overload signatures to match FilteredPriorityEmitter/Emittery
+  /**
+   * Emit an event with no payload (dataless event).
+   * @param eventName The event name.
+   */
   async emit<Name extends DatalessEventNames<Events>>(
     eventName: Name
   ): Promise<void>
+  /**
+   * Emit an event with a payload.
+   * @param eventName The event name.
+   * @param eventData The event payload.
+   */
   async emit<Name extends keyof Events>(
     eventName: Name,
     eventData: Events[Name]
   ): Promise<void>
+  /**
+   * Emit an event (overload for optional payload).
+   * @param eventName The event name.
+   * @param eventData The event payload (optional).
+   */
   async emit<Name extends keyof Events>(
     eventName: Name,
     eventData?: Events[Name]
@@ -135,6 +203,11 @@ export class MetricsEmitter<
     this._eventLastTime.set(eventName as string, elapsed)
     if (error) throw error
   }
+
+  /**
+   * Reset all metrics, or metrics for a specific event.
+   * @param event Optional event name to reset.
+   */
   resetMetrics(event?: string) {
     if (event) {
       this._eventCounts.delete(event)
