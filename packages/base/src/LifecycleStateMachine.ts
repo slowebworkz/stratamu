@@ -1,6 +1,6 @@
 import type { LifecycleEvents, LifecycleState } from '@stratamu/types'
 import type { Promisable } from 'type-fest'
-import { BaseClass } from './base'
+import { BaseClass } from './BaseClass'
 import type { Args } from './types'
 
 type StateHook<TEvent extends keyof LifecycleEvents = keyof LifecycleEvents> = (
@@ -20,13 +20,31 @@ type StateToEventMap = {
 }
 
 /**
- * LifecycleStateMachine: Provides a state machine and lifecycle events for the game/server.
- * Use this for the main world/server object, not for every class.
+ * LifecycleStateMachine provides a robust, extensible state machine for managing
+ * the lifecycle of a game world, server, or other long-lived system.
  *
- * Now supports onEnter/onExit hooks, event payloads, and optional transition logging.
+ * Features:
+ * - Strongly-typed states and events (see LifecycleState, LifecycleEvents)
+ * - Validates all state transitions (throws on invalid transitions)
+ * - Supports onEnter/onExit hooks for each state (with correct payload typing)
+ * - Emits events on each transition (with optional payload)
+ * - Optional transition logging for debugging
+ *
+ * Usage:
+ *   const machine = new LifecycleStateMachine();
+ *   machine.onEnter('running', (from, to, payload) => { ... });
+ *   await machine.start();
+ *
+ * Note: This is intended for the main world/server object, not for every class.
  */
 export class LifecycleStateMachine extends BaseClass<LifecycleEvents> {
-  // --- Hook Invocation Helper ---
+  /**
+   * Helper to invoke a state hook (onEnter/onExit), handling arity and payload.
+   * @param hook The hook function (or undefined).
+   * @param from The previous state.
+   * @param to The new state.
+   * @param payload Optional event payload.
+   */
   private async callHook<T extends StateHook<any>>(
     hook: T | undefined,
     from: LifecycleState,
@@ -42,8 +60,15 @@ export class LifecycleStateMachine extends BaseClass<LifecycleEvents> {
     await hook.apply(null, params)
   }
 
-  // --- State ---
+  /**
+   * The current lifecycle state.
+   */
   private state: LifecycleState = 'created'
+
+  /**
+   * Map of valid state transitions.
+   * Each state lists the states it can transition to.
+   */
   private readonly validTransitions: Record<LifecycleState, LifecycleState[]> =
     {
       created: ['initialized'],
@@ -54,15 +79,25 @@ export class LifecycleStateMachine extends BaseClass<LifecycleEvents> {
       destroyed: []
     }
 
-  // --- Hooks ---
+  /**
+   * Registered onEnter hooks for each state.
+   * Use onEnter(state, hook) to register.
+   */
   private onEnterHooks: Partial<{
     [S in keyof StateToEventMap]: StateHook<StateToEventMap[S]>
   }> = {}
+
+  /**
+   * Registered onExit hooks for each state.
+   * Use onExit(state, hook) to register.
+   */
   private onExitHooks: Partial<{
     [S in keyof StateToEventMap]: StateHook<StateToEventMap[S]>
   }> = {}
 
-  // --- Config ---
+  /**
+   * Whether to log all state transitions to the console.
+   */
   private _logging = false
 
   /**
@@ -75,43 +110,91 @@ export class LifecycleStateMachine extends BaseClass<LifecycleEvents> {
     this._logging = enabled
   }
 
-  // --- State Query ---
+  /**
+   * Get the current state.
+   */
   getState(): LifecycleState {
     return this.state
   }
+
+  /**
+   * Returns true if the state is 'running'.
+   */
   isRunning(): boolean {
     return this.state === 'running'
   }
+
+  /**
+   * Returns true if the state is 'destroyed'.
+   */
   isDestroyed(): boolean {
     return this.state === 'destroyed'
   }
 
   // --- Lifecycle Methods ---
+
+  /**
+   * Transition to 'initialized' state (fires 'init' event).
+   * @param payload Optional payload for the 'init' event.
+   */
   async init(payload?: LifecycleEvents['init']) {
     await this.transition('initialized', 'init', payload)
   }
+
+  /**
+   * Transition to 'running' state (fires 'start' event).
+   * @param payload Optional payload for the 'start' event.
+   */
   async start(payload?: LifecycleEvents['start']) {
     await this.transition('running', 'start', payload)
   }
+
+  /**
+   * Transition to 'running' state (fires 'resume' event).
+   * @param payload Optional payload for the 'resume' event.
+   */
   async resume(payload?: LifecycleEvents['resume']) {
     await this.transition('running', 'resume', payload)
   }
+
+  /**
+   * Transition to 'suspended' state (fires 'suspend' event).
+   * @param payload Optional payload for the 'suspend' event.
+   */
   async suspend(payload?: LifecycleEvents['suspend']) {
     await this.transition('suspended', 'suspend', payload)
   }
+
+  /**
+   * Transition to 'stopped' state (fires 'stop' event).
+   * @param payload Optional payload for the 'stop' event.
+   */
   async stop(payload?: LifecycleEvents['stop']) {
     await this.transition('stopped', 'stop', payload)
   }
+
+  /**
+   * Transition to 'initialized' state (fires 'reset' event).
+   * @param payload Optional payload for the 'reset' event.
+   */
   async reset(payload?: LifecycleEvents['reset']) {
     await this.transition('initialized', 'reset', payload)
   }
+
+  /**
+   * Transition to 'destroyed' state (fires 'destroy' event).
+   * @param payload Optional payload for the 'destroy' event.
+   */
   async destroy(payload?: LifecycleEvents['destroy']) {
     await this.transition('destroyed', 'destroy', payload)
   }
 
   // --- Hook Registration ---
+
   /**
    * Register a hook to run when entering a state. Overloaded for correct payload type.
+   * @param state The state to register the hook for.
+   * @param hook The hook function (from, to, payload?).
    */
   onEnter<S extends keyof StateToEventMap>(
     state: S,
@@ -122,6 +205,8 @@ export class LifecycleStateMachine extends BaseClass<LifecycleEvents> {
 
   /**
    * Register a hook to run when exiting a state. Overloaded for correct payload type.
+   * @param state The state to register the hook for.
+   * @param hook The hook function (from, to, payload?).
    */
   onExit<S extends keyof StateToEventMap>(
     state: S,
@@ -130,11 +215,22 @@ export class LifecycleStateMachine extends BaseClass<LifecycleEvents> {
     ;(this.onExitHooks as any)[state] = hook
   }
 
-  // --- Private Helpers ---
+  /**
+   * Called when an invalid state transition is attempted.
+   * Override to customize error handling.
+   * @param from The current state.
+   * @param to The attempted new state.
+   */
   protected onInvalidTransition(from: LifecycleState, to: LifecycleState) {
     throw new Error(`Invalid transition: ${from} → ${to}`)
   }
 
+  /**
+   * Perform a state transition, invoking hooks and emitting events.
+   * @param to The new state.
+   * @param event The event name to emit.
+   * @param payload Optional event payload.
+   */
   private async transition<K extends keyof LifecycleEvents>(
     to: LifecycleState,
     event: K,

@@ -1,3 +1,3 @@
-export * from './base'
+export * from './BaseClass'
 export * from './events'
-export * from './lifecycle-state-machine'
+export * from './LifecycleStateMachine'

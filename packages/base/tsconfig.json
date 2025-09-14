@@ -10,6 +10,8 @@
     "declaration": true,
     "moduleResolution": "NodeNext",
     "module": "NodeNext",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "paths": {
       "@stratamu/types": ["../../types/index"],
       "@entities/*": ["entities/*"],
