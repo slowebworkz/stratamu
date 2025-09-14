@@ -1,16 +1,7 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "types": ["vitest", "vite/client", "node"],
-    "moduleResolution": "NodeNext",
-    "module": "NodeNext",
-    "baseUrl": "src",
-    "paths": {
-      "@stratamu/types": ["../../types/index"],
-      "@entities/*": ["entities/*"],
-      "@gameworld/*": ["gameworld/*"],
-      "@/*": ["./*"],
-      "@/middleware/*": ["middleware/*"]
-    }
+    "types": ["vitest", "vite/client", "node"]
   },
-  "include": ["src/**/*.ts", "src/**/*.test.ts"]
+  "include": ["src/**/*.test.ts"]
 }
