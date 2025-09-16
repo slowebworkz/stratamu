@@ -1,5 +1,5 @@
-import type { BaseEventMap } from '@/types/base-event-map'
 import Emittery from 'emittery'
+import type { BaseEventMap } from '../types/index'
 import type { Args } from './types'
 
 /**
