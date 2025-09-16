@@ -32,3 +32,4 @@ results
 
 # Ignore temporary commit message files
 *commit*.txt
+*COMMIT*.txt

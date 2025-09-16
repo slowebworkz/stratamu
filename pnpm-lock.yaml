@@ -68,9 +68,6 @@ importers:
 
   packages/base:
     dependencies:
-      '@stratamu/types':
-        specifier: workspace:*
-        version: link:../types
       emittery:
         specifier: ^1.2.0
         version: 1.2.0
@@ -78,6 +75,9 @@ importers:
         specifier: ^9.9.5
         version: 9.9.5
     devDependencies:
+      '@stratamu/types':
+        specifier: workspace:*
+        version: link:../types
       type-fest:
         specifier: ^4.41.0
         version: 4.41.0
@@ -85,29 +85,42 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@24.3.2)(@vitest/ui@3.2.4)(yaml@2.8.1)
 
-  packages/core-engine: {}
+  packages/core-engine:
+    devDependencies:
+      '@stratamu/base':
+        specifier: workspace:*
+        version: link:../base
+      '@stratamu/types':
+        specifier: workspace:*
+        version: link:../types
+      type-fest:
+        specifier: ^4.41.0
+        version: 4.41.0
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@24.3.2)(@vitest/ui@3.2.4)(yaml@2.8.1)
 
   packages/networking:
-    dependencies:
+    devDependencies:
       '@stratamu/types':
         specifier: workspace:*
         version: link:../types
 
   packages/presentation:
-    dependencies:
+    devDependencies:
       '@stratamu/types':
         specifier: workspace:*
         version: link:../types
 
   packages/storage:
     dependencies:
-      '@stratamu/types':
-        specifier: workspace:*
-        version: link:../types
       interval-promise:
         specifier: ^1.4.0
         version: 1.4.0
     devDependencies:
+      '@stratamu/types':
+        specifier: workspace:*
+        version: link:../types
       '@types/node':
         specifier: ^24.3.1
         version: 24.3.2

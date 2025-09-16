@@ -10,7 +10,6 @@
     }
   },
   "dependencies": {
-    "@stratamu/types": "workspace:*",
     "interval-promise": "^1.4.0"
   },
   "scripts": {
@@ -20,6 +19,7 @@
     "lint": "eslint src/**/*.ts"
   },
   "devDependencies": {
+    "@stratamu/types": "workspace:*",
     "@types/node": "^24.3.1",
     "@vitest/ui": "^3.2.4",
     "tsconfig-paths": "^4.2.0",
