@@ -5,7 +5,8 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "paths": {
-      "@stratamu/types": ["../../types/index"],
+      "@stratamu/types": ["packages/types/src"],
+      "@stratamu/base2": ["../base2/src"],
       "@/types": ["types/index"],
       "@/shared": ["shared/index"],
       "@/telnet": ["telnet/index"],

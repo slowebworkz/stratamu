@@ -15,8 +15,9 @@
     "lint": "eslint src/**/*.ts",
     "test": "vitest run"
   },
-  "dependencies": {},
   "devDependencies": {
-    "@stratamu/types": "workspace:*"
+    "@stratamu/types": "workspace:*",
+    "@stratamu/base": "workspace:*",
+    "type-fest": "^4.41.0"
   }
 }

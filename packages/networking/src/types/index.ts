@@ -2,3 +2,4 @@
 
 export * from '@stratamu/types'
 export * from './adapters'
+export * from './telnet-types'

@@ -33,3 +33,6 @@ results
 # Ignore temporary commit message files
 *commit*.txt
 *COMMIT*.txt
+
+# Ignore all files in scripts folder
+scripts/

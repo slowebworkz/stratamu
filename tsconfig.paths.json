@@ -2,6 +2,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
+      "@stratamu/base": ["packages/base/src"],
+      "@stratamu/base2": ["packages/base2/src"],
       "@stratamu/core-engine": ["packages/core-engine/src"],
       "@stratamu/networking": ["packages/networking/src"]
     }
