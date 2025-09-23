@@ -1,4 +1,4 @@
 
 pnpm format
-pnpm lint
+pnpm lint:fix
 pnpm vitest run

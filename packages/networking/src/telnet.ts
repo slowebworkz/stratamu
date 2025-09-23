@@ -1,33 +1,41 @@
+import { ClientStateManager, GroupManager, IdleTimeoutManager } from '@/shared'
 import * as net from 'node:net'
-import { ClientStateManager } from './shared/client-state-manager'
-import { GroupManager } from './shared/group-manager'
-import { IdleTimeoutManager } from './shared/idle-timeout-manager'
-import { ConnectionManager } from './telnet/connection-manager'
-import {
-  getConnectionInfo,
-  getConnectionStats
-} from './telnet/connection-stats'
-import { emitEvent, registerHandler } from './telnet/event-utils'
+
 import {
   addClientToGroup,
   broadcastToGroup,
-  removeClientFromGroup
-} from './telnet/group-utils'
-import { kickExcessConnections } from './telnet/kick-utils'
-import { handleMessageWithMiddleware } from './telnet/message-middleware'
-import { createTelnetServer } from './telnet/server-utils'
-import type { TelnetEventMap } from './telnet/telnet-event-map'
-import { TelnetProtocolHandler } from './telnet/telnet-protocol-handler'
-import {
+  ConnectionManager,
+  createTelnetServer,
+  emitEvent,
+  getConnectionInfo,
+  getConnectionStats,
+  handleMessageWithMiddleware,
   handleSubnegotiation,
+  kickExcessConnections,
+  registerHandler,
+  removeClientFromGroup,
   sendANSI,
   sendColoredMessage,
   sendIAC,
-  setPrompt
-} from './telnet/telnet-utils'
-import { setIdleTimeout } from './telnet/timeout-utils'
-import type { ConnectionLimits } from './types/index'
-import { NetworkAdapter, TelnetConfig } from './types/index'
+  setIdleTimeout,
+  setPrompt,
+  TelnetEventMap,
+  TelnetProtocolHandler
+} from '@/telnet'
+
+import type {
+  ConnectionLimits,
+  NetworkAdapter,
+  TelnetClientId,
+  TelnetClientState,
+  TelnetConfig,
+  TelnetConfigRequired,
+  TelnetGroupId,
+  TelnetHandlers,
+  TelnetMessage,
+  TelnetMiddleware
+} from '@/types'
+import type { PartialDeep } from 'type-fest'
 
 export { TelnetConfig }
 
@@ -42,14 +50,10 @@ export class TelnetAdapter implements NetworkAdapter {
   private idleTimeouts = new IdleTimeoutManager()
   private connectionManager: ConnectionManager
   private groupManager = new GroupManager()
-  private handlers: Partial<{
-    [K in keyof TelnetEventMap]: Array<TelnetEventMap[K]>
-  }> = {}
+  private handlers: TelnetHandlers = {}
   private server?: net.Server
-  private middlewares: Array<
-    (clientId: string, message: any, next: () => void) => void
-  > = []
-  private config: Required<TelnetConfig> = {
+  private middlewares: TelnetMiddleware[] = []
+  private config: TelnetConfigRequired = {
     port: 4000,
     idleTimeoutMs: 600000, // 10 minutes
     maxConnections: 100,
@@ -67,7 +71,7 @@ export class TelnetAdapter implements NetworkAdapter {
    * Start the Telnet server, listen for connections, and handle basic Telnet negotiation.
    * Follows classic MUD patterns: listen on configurable port, accept multiple clients, handle text I/O.
    */
-  public async start(config?: TelnetConfig) {
+  public async start(config?: PartialDeep<TelnetConfigRequired>) {
     // Merge user config with defaults
     this.config = { ...this.config, ...config }
 
@@ -132,7 +136,7 @@ export class TelnetAdapter implements NetworkAdapter {
     }
   }
 
-  public send(clientId: string, message: string | object) {
+  public send(clientId: TelnetClientId, message: TelnetMessage) {
     const socket = this.connectionManager.getClient(clientId)
     if (socket) {
       const output =
@@ -142,15 +146,21 @@ export class TelnetAdapter implements NetworkAdapter {
   }
 
   // Replace group management methods
-  public addClientToGroup(clientId: string, groupId: string): void {
+  public addClientToGroup(
+    clientId: TelnetClientId,
+    groupId: TelnetGroupId
+  ): void {
     addClientToGroup(this.groupManager, clientId, groupId)
   }
 
-  public removeClientFromGroup(clientId: string, groupId: string): void {
+  public removeClientFromGroup(
+    clientId: TelnetClientId,
+    groupId: TelnetGroupId
+  ): void {
     removeClientFromGroup(this.groupManager, clientId, groupId)
   }
 
-  public broadcast(message: string | object, groupId?: string) {
+  public broadcast(message: TelnetMessage, groupId?: TelnetGroupId) {
     broadcastToGroup(
       this.groupManager,
       this.connectionManager.getAllClients(),
@@ -179,32 +189,40 @@ export class TelnetAdapter implements NetworkAdapter {
   }
 
   // Replace Telnet protocol utilities
-  public sendIAC(clientId: string, command: number, option?: number): void {
+  public sendIAC(
+    clientId: TelnetClientId,
+    command: number,
+    option?: number
+  ): void {
     const socket = this.connectionManager.getClient(clientId)
     if (!socket) return
     sendIAC(socket, command, option)
   }
 
-  public sendANSI(clientId: string, ansiSequence: string): void {
+  public sendANSI(clientId: TelnetClientId, ansiSequence: string): void {
     const socket = this.connectionManager.getClient(clientId)
     if (!socket) return
     sendANSI(socket, ansiSequence)
   }
 
-  public setPrompt(clientId: string, prompt: string): void {
+  public setPrompt(clientId: TelnetClientId, prompt: string): void {
     const socket = this.connectionManager.getClient(clientId)
     if (!socket) return
     setPrompt(socket, prompt)
   }
 
-  public handleSubnegotiation(clientId: string, type: string, data: any): void {
+  public handleSubnegotiation(
+    clientId: TelnetClientId,
+    type: string,
+    data: TelnetMessage
+  ): void {
     const socket = this.connectionManager.getClient(clientId)
     if (!socket) return
     handleSubnegotiation(socket, clientId, type, data)
   }
 
   public sendColoredMessage(
-    clientId: string,
+    clientId: TelnetClientId,
     message: string,
     color?: string
   ): void {
@@ -214,7 +232,7 @@ export class TelnetAdapter implements NetworkAdapter {
   }
 
   // Replace idle timeout management
-  public setIdleTimeout(clientId: string, ms: number): void {
+  public setIdleTimeout(clientId: TelnetClientId, ms: number): void {
     setIdleTimeout(
       this.idleTimeouts,
       this.connectionManager,
@@ -230,7 +248,7 @@ export class TelnetAdapter implements NetworkAdapter {
 
   // Replace connection info/stats
   public getConnectionInfo(
-    clientId: string
+    clientId: TelnetClientId
   ): { ip?: string; port?: number; connected: Date } | null {
     return getConnectionInfo(this.connectionManager, clientId)
   }
@@ -252,11 +270,14 @@ export class TelnetAdapter implements NetworkAdapter {
     })
   }
 
-  public getClientState(clientId: string): Record<string, any> {
+  public getClientState(clientId: TelnetClientId): TelnetClientState {
     return this.clientStates.get(clientId)
   }
 
-  public setClientState(clientId: string, state: Record<string, any>): void {
+  public setClientState(
+    clientId: TelnetClientId,
+    state: TelnetClientState
+  ): void {
     this.clientStates.set(clientId, state)
   }
 
